@@ -4,7 +4,8 @@
 
 
 
-env配置项: 
+env配置项:
+
     setu_cd                  setu的cd, 默认20s, 类型int                例如: setu_cd = 30
     
     setu_ban                 禁用名单, 默认空, 类型string数组           例如: setu_ban = ["114514","1919810"]
