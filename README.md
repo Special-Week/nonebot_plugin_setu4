@@ -6,13 +6,22 @@
 
 env配置项: 
     setu_cd                  setu的cd, 默认20s, 类型int                例如: setu_cd = 30
+    
     setu_ban                 禁用名单, 默认空, 类型string数组           例如: setu_ban = ["114514","1919810"]
+    
     setu_withdraw_time       setu撤回时间, 默认100s, 类型int            例如: setu_withdraw_time = 30
+    
     setu_max_num             setu一次性最大数量, 默认10, 类型int        例如: setu_max_num = 20
+    
     setu_save                setu时候保存到本地, 默认False, 类型bool    例如: setu_save = True
+    
 以上配置项, 均可不写
+
+
 setu_save保存的位置是插件目录下的resource/img保存后下一次调用碰到这个setu就不需要再下载
+
 setu_save实际上你不管填了啥, 无论False还是True亦或别的, 他都会变成True, 想要False的话env就别写这个, 不鸟他
+
 
 
 
