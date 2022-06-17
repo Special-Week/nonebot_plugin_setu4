@@ -21,6 +21,8 @@ env配置项:
 
 setu_save保存的位置是插件目录下的resource/img保存后下一次调用碰到这个setu就不需要再下载
 
+一般无需科学上网, 但是先确保一下自己的服务器能否正常访问pixiv.re
+
 setu_save实际上你不管填了啥, 无论False还是True亦或别的, 他都会变成True, 想要False的话env就别写这个, 不鸟他
 
 
