@@ -75,6 +75,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     args = list(state["_matched_groups"])
     r18flag = args[2]
     key = args[3]
+    key = sub('[\'\"]', '', key)  # 去掉引号防止sql注入
     num = args[1]
     num = int(sub(r"[张|个|份|x|✖️|×|X|*]", "", num)) if num else 1
 
@@ -128,7 +129,6 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     if key == "":
         flagLog = f"\nR18 == {str(r18)}\nkeyword == NULL\nnum == {num}\n"
     else:
-        key = key.replace("'","’") # 替换掉 ' , 防止sql注入语句闭合
         flagLog = f"\nR18 == {str(r18)}\nkeyword == {key}\nnum == {num}\n"
 
     logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")       # 控制台输出
