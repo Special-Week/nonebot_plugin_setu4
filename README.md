@@ -1,4 +1,4 @@
-# nonebot_plugin_setu
+# nonebot_plugin_setu4
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(随机修改左上角一颗像素点)
 
 安装方式:
