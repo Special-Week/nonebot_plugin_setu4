@@ -1,27 +1,23 @@
+import asyncio
+import os
 import random
 from re import I, sub
-import asyncio
+
 import nonebot
-from nonebot import on_regex, on_command
-from nonebot.adapters.onebot.v11 import (
-    GROUP,
-    PRIVATE_FRIEND,
-    Bot,
-    Message,
-    MessageEvent,
-    PrivateMessageEvent,
-    GroupMessageEvent,
-    MessageSegment
-)
+from nonebot import on_command, on_regex
+from nonebot.adapters.onebot.v11 import (GROUP, PRIVATE_FRIEND, Bot,
+                                         GroupMessageEvent, Message,
+                                         MessageEvent, MessageSegment,
+                                         PrivateMessageEvent)
 from nonebot.exception import ActionFailed
 from nonebot.log import logger
-from nonebot.params import State
-from nonebot.typing import T_State
-from .get_data import get_setu
-from .json_manager import read_json, remove_json, write_json, to_json
-from .setu_message import setu_sendcd, setu_sendmessage
+from nonebot.params import CommandArg, State
 from nonebot.permission import SUPERUSER
-from nonebot.params import CommandArg
+from nonebot.typing import T_State
+
+from .get_data import get_setu
+from .json_manager import read_json, remove_json, to_json, write_json
+from .setu_message import setu_sendcd, setu_sendmessage
 
 # setu cd,可在env设置,默认20s,类型int
 try:
@@ -50,11 +46,18 @@ except:
 
 # 先读一读试试
 try:
-    fp = open('./data/r18list.txt')
+    fp = open('data/setu4/r18list.txt')
     fp.close()
 # 没有的话咱就新建
 except:
-    fp = open('./data/r18list.txt', 'w')
+    # 尝试新建data文件夹
+    try:
+        os.makedirs('data/setu4')
+    except FileExistsError:
+        logger.info('data/setu4文件夹已存在')
+    except Exception as e:
+        raise Exception(f'无法新建data/setu4文件夹, 请检查您的工作路径及读写权限!\n{e}')
+    fp = open('data/setu4/r18list.txt', 'w')
     fp.write("114514\n")
     fp.close()
 
@@ -63,7 +66,7 @@ setu = on_regex(
     r"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?",
     flags=I,
     permission=PRIVATE_FRIEND | GROUP,
-    priority=1,
+    priority=10,
     block=True
 )
 
@@ -100,7 +103,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     sid = event.get_session_id()
     # 判断该群聊setu功能是否被禁用
     for session_id in banlist:
-        if session_id in sid:
+        if str(session_id) in sid:
             await setu.finish("涩图功能已在此会话中禁用！")
     data = read_json()
     try:
@@ -110,12 +113,12 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
 
     # 读取r18列表
     r18list = []
-    fp = open('./data/r18list.txt')
-    while True:
-        line = fp.readline()
-        if not line:
-            break
-        r18list.append(line.strip("\n"))
+    with open('setu4/r18list.txt', 'r') as fp:
+        while True:
+            line = fp.readline()
+            if not line:
+                break
+            r18list.append(line.strip("\n"))
 
     # 先判断r18flag和私聊是不是都是True进行赋值
     r18 = True if (isinstance(event, PrivateMessageEvent)
@@ -202,7 +205,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
 
 
 # r18列表添加用的,权限SUPERSUSER
-addr18list = on_command("add_r18", permission=SUPERUSER, block=True)
+addr18list = on_command("add_r18", permission=SUPERUSER, block=True, priority=10)
 
 
 @addr18list.handle()
@@ -210,14 +213,13 @@ async def _(arg: Message = CommandArg()):
     # 获取消息文本
     msg = arg.extract_plain_text().strip().split()[0]
     # 写入文件
-    with open("data/r18list.txt", "a") as f:
+    with open("setu4/r18list.txt", "a") as f:
         f.write(msg + "\n")
-    fp.close()
     await addr18list.finish("ID:"+msg+"添加成功")
 
 
 # r18列表删除用的,权限SUPERSUSER
-del_r18list = on_command("del_r18", permission=SUPERUSER, block=True)
+del_r18list = on_command("del_r18", permission=SUPERUSER, block=True, priority=10)
 
 
 @del_r18list.handle()
@@ -225,32 +227,30 @@ async def _(arg: Message = CommandArg()):
     # 获取消息文本
     msg = arg.extract_plain_text().strip().split()[0]
     # 写入文件
-    file = open("data/r18list.txt")
-    lines = file.readlines()
-    # 找到msg在lines的位置
-    for i in range(len(lines)):
-        if (msg+'\n') == lines[i]:
-            del lines[i]
-            break
-    file.close()
-    file_new = open("data/r18list.txt", 'w')
-    # 将删除行后的数据写入文件
-    file_new.writelines(lines)
-    file_new.close()
+    with open("setu4/r18list.txt", 'r') as file:
+        lines = file.readlines()
+        # 找到msg在lines的位置
+        for i in range(len(lines)):
+            if (msg+'\n') == lines[i]:
+                del lines[i]
+                break
+    with open("setu4/r18list.txt", 'w') as file:
+        # 将删除行后的数据写入文件
+        file.writelines(lines)
+
     await del_r18list.finish("ID:"+msg+"删除成功")
 
 
-get_r18list = on_command("r18名单", permission=SUPERUSER, block=True)
+get_r18list = on_command("r18名单", permission=SUPERUSER, block=True, priority=10)
 
 
 @get_r18list.handle()
 async def _():
     r18list = []
-    fp = open('./data/r18list.txt')
-    while True:
-        line = fp.readline()
-        if not line:
-            break
-        r18list.append(line.strip("\n"))
-    fp.close()
+    with open('setu4/r18list.txt') as fp:
+        while True:
+            line = fp.readline()
+            if not line:
+                break
+            r18list.append(line.strip("\n"))
     await get_r18list.finish("R18名单：\n" + str(r18list))

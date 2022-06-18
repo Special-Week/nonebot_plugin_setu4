@@ -1,6 +1,6 @@
 import json
 
-data_dir = "./data/setuCD"
+data_dir = "./data/setu4/"
 
 
 def read_json() -> dict:
