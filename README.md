@@ -3,7 +3,8 @@
 
 安装方式:
 
-pip安装
+
+
 pip install nonebot_plugin_setu4
 
 
