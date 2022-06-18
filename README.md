@@ -18,7 +18,7 @@
 |setu_max_num       |int             |10     |setu_max_num = 20                |setu一次性最大数量     |
 |setu_save          |str             |None   |setu_save = './data/setu4/img'   |setu时候保存到本地的路径|
 
-setu_save保存后下一次调用碰到这个setu就不需要再下载
+setu_save保存后下一次调用碰到这个setu就不需要再下载, 先要自己创建好文件夹
 
 一般无需科学上网, 但是先确保一下自己的服务器能否正常访问pixiv.re
 
