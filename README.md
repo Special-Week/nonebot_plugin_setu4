@@ -1,6 +1,7 @@
 # nonebot_plugin_setu4
 
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(随机修改左上角一颗像素点)
+目前数据库共49119条记录
 
 安装方式:
 
@@ -16,7 +17,7 @@
 |setu_ban           |tuple[str, int] |None   |setu_ban = ["114514", "1919810"] |禁用名单(群号或QQ号)    |
 |setu_withdraw_time |int             |100    |setu_withdraw_time = 30          |setu撤回时间           |
 |setu_max_num       |int             |10     |setu_max_num = 20                |setu一次性最大数量     |
-|setu_save          |str             |None   |setu_save = './data/setu4/img'   |setu时候保存到本地的路径|
+|setu_save          |str             |None   |setu_save = './data/setu4/img'   |setu保存到本地的路径   |
 
 setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有的文件匹配, 不需要再下载, 先要自己创建好文件夹
 
