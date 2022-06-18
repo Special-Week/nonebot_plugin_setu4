@@ -10,31 +10,36 @@ from pathlib import Path
 from PIL import Image
 from io import BytesIO
 error = "Error:"
-# save_flag,可在env设置,默认False, 类型bool
+
+
+# save_path,可在env设置, 默认False, 类型bool或str
 try:
-    save_flag = nonebot.get_driver().config.setu_save
+    save_path = nonebot.get_driver().config.setu_save
+    all_file_name = os.listdir(save_path)
 except:
-    save_flag = False
+    save_path = False
 
-
-# 连接数据库
-conn = sqlite3.connect(
-    Path(os.path.join(os.path.dirname(__file__), "resource")) / "lolicon.db")
-cur = conn.cursor()
 
 # 本地setu路径,默认在插件目录下的resource/img
-img_path = str(Path(os.path.join(os.path.dirname(__file__), "resource/img")))
+# img_path = str(Path(os.path.join(os.path.dirname(__file__), "resource/img")))
 # 读取file_name里面的全部文件名
-all_file_name = os.listdir(img_path)
+# all_file_name = os.listdir(img_path)
 
 
 # 返回列表,内容为setu消息(列表套娃)
 async def get_setu(keyword="", r18=False, num=1, quality=75) -> list:
     data = []
+    # 连接数据库
+    conn = sqlite3.connect(
+        Path(os.path.join(os.path.dirname(__file__), "resource")) / "lolicon.db")
+    cur = conn.cursor()
     # sql操作,根据keyword和r18进行查询拿到数据
     cursor = cur.execute(
         f"SELECT * from main where (tags like \'%{keyword}%\' or title like \'%{keyword}%\' or author like \'%{keyword}%\') and r18=\'{r18}\'")
     db_data = cursor.fetchall()
+    # 断开数据库连接
+    conn.close()
+    # 如果没有返回结果
     if db_data == []:
         data.append([error, f"图库中没有搜到关于{keyword}的图。", False])
         return data
@@ -76,7 +81,7 @@ async def pic(setu, quality, client):
     # 判断文件是否本地存在
     if file_name in all_file_name:
         logger.info("图片本地存在")
-        image = Image.open(img_path + "/" + file_name)
+        image = Image.open(save_path + "/" + file_name)
     # 如果没有就down_pic
     else:
         logger.info("图片本地不存在,正在去i.pixiv.re下载")
@@ -112,11 +117,14 @@ async def down_pic(url, client):
     re = await client.get(url=url, headers=headers, timeout=120)
     if re.status_code == 200:
         logger.success("成功获取图片")
-        if save_flag:
+        if save_path:
             file_name = url.split("/")[-1]
-            with open(f"{img_path}/{file_name}", "wb") as f:
-                f.write(re.content)
-            all_file_name.append(file_name)
+            try:
+                with open(f"{save_path}/{file_name}", "wb") as f:
+                    f.write(re.content)
+                all_file_name.append(file_name)
+            except Exception as e:
+                logger.error(f'图片存储失败: {e}')
         return re.content
     else:
         logger.error(f"获取图片失败: {re.status_code}")
