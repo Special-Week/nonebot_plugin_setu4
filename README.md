@@ -7,6 +7,8 @@
 安装方式:
 
     pip install nonebot_plugin_setu4
+    
+    nb plugin install nonebot-plugin-setu4
 
 ## env 配置项
 
