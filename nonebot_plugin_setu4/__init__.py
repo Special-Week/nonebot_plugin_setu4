@@ -128,6 +128,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     if key == "":
         flagLog = f"\nR18 == {str(r18)}\nkeyword == NULL\nnum == {num}\n"
     else:
+        key = key.replace("'","’") # 替换掉 ' , 防止sql注入语句闭合
         flagLog = f"\nR18 == {str(r18)}\nkeyword == {key}\nnum == {num}\n"
 
     logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")       # 控制台输出
