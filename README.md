@@ -13,14 +13,16 @@
 ## env 配置项
 
 >以下配置项均可不填，插件会按照默认值读取
+>带有*标识的设置项可在指定群聊被setu_perm_cfg.json中的内容覆盖
 
-|config             |type            |default|example                          |usage                 |
-|-------------------|----------------|-------|---------------------------------|----------------------|
-|setu_cd            |int             |20     |setu_cd = 30                     |setu的cd              |
-|setu_ban           |tuple[str, int] |None   |setu_ban = ["114514", "1919810"] |禁用名单(群号或QQ号)    |
-|setu_withdraw_time |int             |100    |setu_withdraw_time = 30          |setu撤回时间           |
-|setu_max_num       |int             |10     |setu_max_num = 20                |setu一次性最大数量     |
-|setu_save          |str             |None   |setu_save = './data/setu4/img'   |setu保存到本地的路径   |
+|config             |type            |default    |example                                              |usage                                   |
+|-------------------|----------------|-----------|-----------------------------------------------------|----------------------------------------|
+|setu_perm_cfg_path |str             |see example|setu_perm_cfg = './data/setu4'                       |会话(群号或QQ号)启用、r18及其他独立配置项  |
+|setu_cd*           |int             |20         |setu_cd = 30                                         |setu通用cd, 为0时无cd                    |
+|setu_withdraw_time*|int             |100        |setu_withdraw_time = 30                              |setu通用撤回时间(最大为100秒), 为0时不撤回 |
+|setu_max_num*      |int             |10         |setu_max_num = 20                                    |setu一次性最大数量(最小为1)               |
+|setu_save          |str             |None       |setu_save = './data/setu4/img'                       |setu保存到本地的路径, 留空则不保存至本地   |
+|setu_database_path |str             |see example|setu_database_path = 'https://hub.fastgit.xyz/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'|更新使用的数据库的地址，默认为此项目的resource文件夹下|
 
 setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有的文件匹配, 不需要再下载, 先要自己创建好文件夹
 
