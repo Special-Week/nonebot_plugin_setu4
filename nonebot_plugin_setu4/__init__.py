@@ -55,7 +55,7 @@ setu = on_regex(
     setu_regex,
     flags=I,
     permission=PRIVATE_FRIEND | GROUP,
-    priority=10,
+    priority=20,
     block=True
 )
 
