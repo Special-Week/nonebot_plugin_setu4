@@ -40,6 +40,7 @@ def sessionId(event:MessageEvent):
     return sessionId
 
 def verifySid(sid:str):
+    sid = str(sid)
     try:
         sType, sId = sid.split('_')
         if sType in ['group','user']:
@@ -173,7 +174,7 @@ async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
 @open_setu.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
-async def group(state: T_State = State()):
+async def _(state: T_State = State()):
     if not verifySid(state['sid']):
         await open_setu.reject(f"无效目标对象: {state['sid']}")
     await open_setu.finish(pm.UpdateWhiteList(state['sid'],state['add_mode']))
@@ -195,7 +196,7 @@ async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
 @set_r18.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
-async def group(state: T_State = State()):
+async def _(state: T_State = State()):
     if not verifySid(state['sid']):
         await set_r18.reject(f"无效目标对象: {state['sid']}")
     await set_r18.finish(pm.UpdateR18(state['sid'],state['r18Mode']))
@@ -215,7 +216,7 @@ async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
 @set_cd.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
-async def group(state: T_State = State()):
+async def _(state: T_State = State()):
     if not verifySid(state['sid']):
         await set_cd.reject(f"无效目标对象: {state['sid']}")
     await set_cd.finish(pm.UpdateCd(state['sid'],state['cdTime']))
@@ -235,7 +236,7 @@ async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
 @set_wd.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
-async def group(state: T_State = State()):
+async def _(state: T_State = State()):
     if not verifySid(state['sid']):
         await set_wd.reject(f"无效目标对象: {state['sid']}")
     await set_wd.finish(pm.UpdateWithdrawTime(state['sid'],state['withdrawTime']))
@@ -255,7 +256,7 @@ async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
 @set_maxnum.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
-async def group(state: T_State = State()):
+async def _(state: T_State = State()):
     if not verifySid(state['sid']):
         await set_maxnum.reject(f"无效目标对象: {state['sid']}")
     await set_maxnum.finish(pm.UpdateMaxNum(state['sid'],state['maxNum']))
