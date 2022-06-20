@@ -135,7 +135,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
                     }
                 })
             setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
-        pm.UpdateCd(sessionId)
+        pm.UpdateLastSend(sessionId)
     # 发送失败
     except ActionFailed as e:
         logger.warning(e)

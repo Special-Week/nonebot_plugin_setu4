@@ -172,7 +172,7 @@ class PermissionManager:
     # --------------- 逻辑判断 结束 ---------------
 
     # --------------- 冷却更新 开始 ---------------
-    def UpdateCd(self,sessionId):
+    def UpdateLastSend(self,sessionId):
         try:
             self.cfg[sessionId]['last'] = time.time()
         except KeyError:
