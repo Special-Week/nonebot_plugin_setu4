@@ -148,7 +148,7 @@ class PermissionManager:
            (not self.setu_enable_private) and userType == 'private'
         ):
             # 如果会话本身未在名单中, 不启用功能        
-            if sessionId in self.cfg.keys():
+            if not sessionId in self.cfg.keys():
                 logger.warning(f'涩图功能在 {sessionId} 会话中未启用')
                 raise PermissionError('涩图功能在此会话中未启用！')
 
