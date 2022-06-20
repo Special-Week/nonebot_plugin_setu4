@@ -226,7 +226,7 @@ async def _(state: T_State = State()):
 # ----- 撤回时间更新 ----- 
 set_wd = on_command("setu_wd", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
-@set_cd.handle()
+@set_wd.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
         state['withdrawTime'] = int(cmd)
@@ -247,7 +247,7 @@ async def _(state: T_State = State()):
 # ----- 最大张数更新 ----- 
 set_maxnum = on_command("setu_mn", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
-@set_cd.handle()
+@set_maxnum.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
         state['maxNum'] = int(cmd)
