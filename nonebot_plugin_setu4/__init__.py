@@ -268,4 +268,4 @@ async def _():
         remsg = await DownloadDatabase()
     except Exception as e:
         remsg = f'获取 lolicon.db 失败: {e}'
-    await setuupdate.finish('remsg')
+    await setuupdate.finish(remsg)
