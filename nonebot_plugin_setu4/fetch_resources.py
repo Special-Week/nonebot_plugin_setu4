@@ -10,8 +10,7 @@ try:
 except:
     database_path = 'https://hub.fastgit.xyz/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
 
-async def DownloadDatabaseFile():
-    database_path = 'https://hub.fastgit.xyz' + '/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
+async def DownloadDatabase():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
@@ -19,11 +18,13 @@ async def DownloadDatabaseFile():
     async with AsyncClient() as client:
         re = await client.get(url=database_path, headers=headers, timeout=120)
         if re.status_code == 200:
-            logger.success("成功获取lolicon.db")
             with open(Path(os.path.join(os.path.dirname(__file__), "resource")) / "lolicon.db", "wb") as f:
                 f.write(re.content)
+            logger.success("成功获取lolicon.db")
+            return "成功获取lolicon.db"
         else:
             logger.error(f"获取 lolicon.db 失败: {re.status_code}")
+            return f"获取 lolicon.db 失败: {re.status_code}"
 
 
 # 下载图片并且返回content,或者status_code
@@ -40,5 +41,3 @@ async def DownloadPic(url, client):
     else:
         logger.error(f"获取图片失败: {re.status_code}")
         return re.status_code
-
-# 

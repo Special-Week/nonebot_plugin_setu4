@@ -46,20 +46,32 @@ class PermissionManager:
             self.setu_max_num       = int(nonebot.get_driver().config.setu_max_num)
         except:
             self.setu_withdraw_time = 10
+        try: 
+            self.setu_enable_private    = bool(nonebot.get_driver().config.setu_enable_private)
+        except:
+            self.setu_enable_private = False
+        # 规范全局变量的取值范围
+        self.setu_cd            = self.setu_cd            if self.setu_cd            > 0   else 0
+        self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time > 0   else 0
+        self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time < 100 else 100
+        self.setu_max_num       = self.setu_max_num       if self.setu_max_num       > 1   else 1
+        self.setu_max_num       = self.setu_max_num       if self.setu_max_num       < 25  else 25
         # 读取perm_cfg
         self.ReadCfg()
     
     # --------------- 文件读写 开始 ---------------
     # 读取cfg
-    def ReadCfg(self):
+    def ReadCfg(self)->dict:
         try:
             # 尝试读取
             with open(self.setu_perm_cfg_path,'r') as f:
                 self.cfg = json.loads(f)
+            return self.cfg
         except:
             # 读取失败
             self.cfg = {}
             self.WriteCfg()
+            return {}
     
     # 写入cfg
     def WriteCfg(self):
@@ -116,7 +128,7 @@ class PermissionManager:
     
     # --------------- 逻辑判断 开始 ---------------
     # 查询权限, 并返回修正过的参数
-    def CheckPermission(self,sessionId:str,r18flag:bool,num:int,su:bool=False):
+    def CheckPermission(self,sessionId:str,r18flag:bool,num:int,userType:str='group'):
         """查询权限, 并返回修正过的参数
 
         Args:
@@ -132,9 +144,12 @@ class PermissionManager:
         Returns:
             [bool, int, int]: [r18是否启用, 图片张数, 撤回时间]
         """
-        if not su:
+        if userType == 'group' or (
+           (not self.setu_enable_private) and userType == 'private'
+        ):
             # 如果会话本身未在名单中, 不启用功能        
             if not self.ReadSessionId(sessionId):
+                logger.warning('涩图功能已在此会话中禁用')
                 raise PermissionError('涩图功能已在此会话中禁用！')
 
             # 查询冷却时间
@@ -147,6 +162,7 @@ class PermissionManager:
                 else:
                     seconds = timeLeft
                 cd_msg = f"{str(hours) + '小时' if hours else ''}{str(minutes) + '分钟' if minutes else ''}{str(seconds) + '秒' if seconds else ''}"
+                logger.warning(f'setu的cd还有{cd_msg}')
                 raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}")
         
         # 检查r18权限, 图片张数, 撤回时间
@@ -162,6 +178,99 @@ class PermissionManager:
         except KeyError:
             pass
     # --------------- 冷却更新 结束 ---------------
-        
-        
+
+    # --------------- 增删系统 开始 ---------------
+    def UpdateWhiteList(self,sessionId,add_mode):
+        # 白名单部分
+        if add_mode:
+            if sessionId in self.cfg.keys():
+                return f'{sessionId}已在白名单'
+            self.cfg[sessionId] = {}
+            self.WriteCfg()
+            return f'成功添加{sessionId}至白名单'
+        # 移除出白名单
+        else:
+            if sessionId in self.cfg.keys():
+                self.cfg.pop(sessionId)
+                self.WriteCfg()
+                return f'成功移除{sessionId}出白名单'
+            return f'{sessionId}不在白名单'
+    
+    # cd部分
+    def UpdateCd(self,sessionId:str,cdTime:int):
+        # 检查是否已在白名单, 不在则结束
+        if not sessionId in self.cfg.keys():
+            return f'{sessionId}不在白名单, 请先添加至白名单后操作'
+        # 检查数据是否超出范围，超出则设定至范围内
+        cdTime = cdTime if cdTime > 0 else 0
+        # 读取原有数据
+        try:
+            cdTime_old = self.cfg[sessionId]['cd']
+        except KeyError:
+            cdTime_old = '未设定'
+        # 写入新数据
+        self.cfg[sessionId]['cd'] = cdTime
+        self.WriteCfg()
+        # 返回信息
+        return f'成功更新冷却时间 {cdTime_old} -> {cdTime}'
+    
+    # 撤回时间部分
+    def UpdateWithdrawTime(self,sessionId:str,withdrawTime:int):
+        # 检查是否已在白名单, 不在则结束
+        if not sessionId in self.cfg.keys():
+            return f'{sessionId}不在白名单, 请先添加至白名单后操作'
+        # 检查数据是否超出范围，超出则设定至范围内
+        withdrawTime = withdrawTime if withdrawTime > 0   else 0
+        withdrawTime = withdrawTime if withdrawTime < 100 else 100
+        # 读取原有数据
+        try:
+            withdrawTime_old = self.cfg[sessionId]['withdraw']
+        except KeyError:
+            withdrawTime_old = '未设定'
+        # 写入新数据
+        self.cfg[sessionId]['withdraw'] = withdrawTime
+        self.WriteCfg()
+        # 返回信息
+        return f'成功更新撤回时间 {withdrawTime_old} -> {withdrawTime}'
+    
+    # 最大张数部分
+    def UpdateMaxNum(self,sessionId:str,maxNum:int):
+        # 检查是否已在白名单, 不在则结束
+        if not sessionId in self.cfg.keys():
+            return f'{sessionId}不在白名单, 请先添加至白名单后操作'
+        # 检查数据是否超出范围，超出则设定至范围内
+        maxNum = maxNum if maxNum > 1  else 1
+        maxNum = maxNum if maxNum < 25 else 25
+        # 读取原有数据
+        try:
+            maxNum_old = self.cfg[sessionId]['maxnum']
+        except KeyError:
+            maxNum_old = '未设定'
+        # 写入新数据
+        self.cfg[sessionId]['maxnum'] = maxNum
+        self.WriteCfg()
+        # 返回信息
+        return f'成功更新最大张数 {maxNum_old} -> {maxNum}'
+    
+    # r18部分
+    def UpdateR18(self,sessionId:str,r18Mode:bool):
+        # 检查是否已在白名单, 不在则结束
+        if not sessionId in self.cfg.keys():
+            return f'{sessionId}不在白名单, 请先添加至白名单后操作'
+
+        if r18Mode:
+            if self.ReadR18(sessionId):
+                return f'{sessionId}已开启r18'
+            self.cfg[sessionId]['r18'] = True
+            self.WriteCfg()
+            return f'成功开启{sessionId}的r18权限'
+        else:
+            if self.ReadR18(sessionId):
+                self.cfg[sessionId]['r18'] = False
+                self.WriteCfg()
+                return f'成功关闭{sessionId}的r18权限'
+            return f'{sessionId}未开启r18'
+    # --------------- 增删系统 结束 ---------------
+
+
 

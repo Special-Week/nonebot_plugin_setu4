@@ -113,11 +113,7 @@ async def change_pixel(image:Image, quality):
     image.load()[0, 0] = (random.randint(0, 255),
                           random.randint(0, 255), random.randint(0, 255))
     byte_data = BytesIO()
-    image.save(byte_data, format="PNG", quality=quality)
+    image.save(byte_data, format="JPEG", quality=quality)
     # pic是的图片的base64编码
     pic = byte_data.getvalue()
     return pic
-
-
-
-
