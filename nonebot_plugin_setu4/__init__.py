@@ -80,7 +80,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
         userType = 'SU' if (str(event.user_id) in nonebot.get_driver().config.superusers) else userType
         r18,num,withdraw_time = pm.CheckPermission(sessionId,r18flag,num,userType)
     except PermissionError as e:
-        await setu.finish(e,at_sender=True)
+        await setu.finish(str(e),at_sender=True)
 
     # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为90(图片质量太高发起来太费时间了)
     if num >= 3 and num <= 6:
