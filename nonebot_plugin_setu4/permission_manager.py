@@ -45,7 +45,7 @@ class PermissionManager:
         try: 
             self.setu_max_num       = int(nonebot.get_driver().config.setu_max_num)
         except:
-            self.setu_withdraw_time = 10
+            self.setu_max_num       = 10
         try: 
             self.setu_enable_private    = bool(nonebot.get_driver().config.setu_enable_private)
         except:
