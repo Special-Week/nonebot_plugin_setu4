@@ -234,7 +234,7 @@ set_wd = on_command("setu_wd", permission=SUPERUSER, block=True, priority=10)
 @set_wd.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
-        state['withdrawTime'] = int(cmd)
+        state['withdrawTime'] = int(str(cmd))
     except:
         await set_wd.finish(f'无效参数: {cmd}, 请输入 正整数 或 0 为参数')
 # 群聊部分自动获取sid
