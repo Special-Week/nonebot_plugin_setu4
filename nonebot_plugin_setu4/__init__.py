@@ -82,6 +82,9 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     except PermissionError as e:
         await setu.finish(str(e),at_sender=True)
 
+    # 通过检查后，更改模式为发送中
+    pm.UpdateSending(sessionId)
+
     # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为90(图片质量太高发起来太费时间了)
     if num >= 3 and num <= 6:
         quality = 70
@@ -136,8 +139,10 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
                 })
             setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
         pm.UpdateLastSend(sessionId)
+        pm.UpdateSending(sessionId,False)
     # 发送失败
     except ActionFailed as e:
+        pm.UpdateSending(sessionId,False)
         logger.warning(e)
         await setu.finish(
             message=Message(f"消息被风控了捏，图发不出来，请尽量减少发送的图片数量"),

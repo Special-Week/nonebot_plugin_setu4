@@ -58,6 +58,8 @@ class PermissionManager:
         self.setu_max_num       = self.setu_max_num       if self.setu_max_num       < 25  else 25
         # 读取perm_cfg
         self.ReadCfg()
+        # 创建当前正在发生的列表
+        self.sending = set()
     
     # --------------- 文件读写 开始 ---------------
     # 读取cfg
@@ -137,6 +139,10 @@ class PermissionManager:
         Returns:
             [bool, int, int]: [r18是否启用, 图片张数, 撤回时间]
         """
+        # 检查是否正在发送中
+        if sessionId in self.sending:
+            raise PermissionError(f'{random.choice(setu_sendcd)}, 当前已有setu在发送中, 请发送完毕后重试！')
+        # 检查会话和触发用户是否满足跳过条件
         if userType == 'group' or (
            (not self.setu_enable_private) and userType == 'private'
         ):
@@ -156,7 +162,7 @@ class PermissionManager:
                     seconds = timeLeft
                 cd_msg = f"{str(hours) + '小时' if hours else ''}{str(minutes) + '分钟' if minutes else ''}{str(seconds) + '秒' if seconds else ''}"
                 logger.warning(f'setu的cd还有{cd_msg}')
-                raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}")
+                raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
         
         # 检查r18权限, 图片张数, 撤回时间
         r18  = True if r18flag and self.ReadR18(sessionId) else False
@@ -165,11 +171,22 @@ class PermissionManager:
     # --------------- 逻辑判断 结束 ---------------
 
     # --------------- 冷却更新 开始 ---------------
+    # 最后一次成功发送的记录
     def UpdateLastSend(self,sessionId):
         try:
             self.cfg[sessionId]['last'] = time.time()
         except KeyError:
             pass
+    
+    # 记录正在发送中的群组
+    def UpdateSending(self,sessionId,add_mode=True):
+        if add_mode:
+            self.sending.add(sessionId)
+        else:
+            try:
+                self.sending.remove(sessionId)
+            except KeyError:
+                pass
     # --------------- 冷却更新 结束 ---------------
 
     # --------------- 增删系统 开始 ---------------
