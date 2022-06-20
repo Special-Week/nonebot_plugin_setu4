@@ -66,11 +66,12 @@ class PermissionManager:
     def ReadCfg(self)->dict:
         try:
             # 尝试读取
-            with open(self.setu_perm_cfg_path,'r') as f:
-                self.cfg = json.loads(f)
+            with open(self.setu_perm_cfg_path,'r',encoding='utf-8') as f:
+                self.cfg = json.loads(f.read())
             return self.cfg
-        except:
+        except Exception as e:
             # 读取失败
+            logger.warning(f'setu_perm_cfg.json 读取失败, 尝试重建\n{e}')
             self.cfg = {}
             self.WriteCfg()
             return {}
