@@ -15,6 +15,7 @@
 >以下配置项均可不填，插件会按照默认值读取
 >带有*标识的设置项可在指定群聊被setu_perm_cfg.json中的内容覆盖
 
+
 |config             |type            |default    |example                                              |usage                                  |
 |-------------------|----------------|-----------|-----------------------------------------------------|---------------------------------------|
 |setu_enable_private|bool            |False      |setu_enable_private = True                           |是否对未在白名单的会话进行屏蔽            |
@@ -23,8 +24,11 @@
 |setu_withdraw_time*|int             |100        |setu_withdraw_time = 30                              |setu默认撤回时间[0,100], 为0时不撤回     |
 |setu_max_num*      |int             |10         |setu_max_num = 20                                    |setu默认一次性最大数量[1,25]            |
 |setu_save          |str             |None       |setu_save = './data/setu4/img'                       |setu保存到本地的路径, 留空则不保存至本地  |
-|setu_regex         |str             |see example|setu_save = "^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?"|setu插件的正则表达式匹配|
+|setu_regex         |str             |see example|setu_save = see description**                        |setu插件的正则表达式匹配                 |
 |setu_database_path |str             |see example|setu_database_path = 'https://hub.fastgit.xyz/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'|更新使用的数据库的地址, 默认为此项目的resource文件夹下|
+
+>带有**标识的字段为 
+"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?"
 
 setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有的文件匹配, 不需要再下载, 先要自己创建好文件夹
 
