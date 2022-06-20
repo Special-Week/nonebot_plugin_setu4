@@ -29,7 +29,7 @@
 
 [^1]:"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?"
 
-[^2]:https://hub.fastgit.xyz/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
+[^2]:'https://github.com/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
 
 setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有的文件匹配, 不需要再下载, 先要自己创建好文件夹
 
@@ -64,7 +64,7 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有�
 1. 全部群聊或私聊默认均未在白名单, 但可以通过设置 setu_enable_private = True 将私聊默认全部开启。
 2. superuser在任意聊天或在设置 setu_enable_private = True 的情况下好友私聊中, 会话均不受cd和白名单本身的影响, 但会受 撤回时长, r18, 最大张数 的影响。
 3. 在群聊中默认以该群作为操作对象, 但在私聊需要用户提供操作对象。
-4. 此部分的事件响应器均为 on_command 生成的, 触发时需要带有[命令头](https://v2.nonebot.dev/docs/api/config#Config-command_start)
+4. 此部分的事件响应器均为 on_command 生成的, 触发时需要带有[命令头](https://v2.nonebot.dev/docs/api/config#Config-command_start)。
 
 白名单管理：
 
@@ -91,5 +91,7 @@ cd时间更新:
 ## 其他指令
 
 数据库更新:
+>此指令默认从 github.com[^2] 拉取数据库，如果无法访问可以考虑使用科学上网或更换镜像。
 
     setu_db      从指定的路径拉取 lolicon.db 数据库，默认为此仓库
+
