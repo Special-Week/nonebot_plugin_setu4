@@ -160,10 +160,10 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
 open_setu = on_command("setu_wl", permission=SUPERUSER, block=True, priority=10)
 # 分析是新增还是删除
 @open_setu.handle()
-async def cmdArg(cmd:CommandArg, state: T_State = State()):
-    if   'add' in str(CommandArg):
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    if   'add' in str(cmd):
         state['add_mode'] = True
-    elif 'del' in str(CommandArg):
+    elif 'del' in str(cmd):
         state['add_mode'] = False
     else:
         await open_setu.finish(f'无效参数: {cmd}, 请输入 add 或 del 为参数')
@@ -182,10 +182,10 @@ async def group(state: T_State = State()):
 set_r18 = on_command("setu_r18", permission=SUPERUSER, block=True, priority=10)
 # 分析是开启还是关闭
 @set_r18.handle()
-async def cmdArg(cmd:CommandArg, state: T_State = State()):
-    if 'on' in str(CommandArg):
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    if 'on' in str(cmd):
         state['r18Mode'] = True
-    elif 'off' in str(CommandArg):
+    elif 'off' in str(cmd):
         state['r18Mode'] = False
     else:
         await set_r18.finish(f'无效参数: {cmd}, 请输入 on 或 off 为参数')
@@ -204,7 +204,7 @@ async def group(state: T_State = State()):
 set_cd = on_command("setu_cd", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
 @set_cd.handle()
-async def cmdArg(cmd:CommandArg, state: T_State = State()):
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
         state['cdTime'] = int(cmd)
     except:
@@ -224,7 +224,7 @@ async def group(state: T_State = State()):
 set_wd = on_command("setu_wd", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
 @set_cd.handle()
-async def cmdArg(cmd:CommandArg, state: T_State = State()):
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
         state['withdrawTime'] = int(cmd)
     except:
@@ -244,7 +244,7 @@ async def group(state: T_State = State()):
 set_maxnum = on_command("setu_mn", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
 @set_cd.handle()
-async def cmdArg(cmd:CommandArg, state: T_State = State()):
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
         state['maxNum'] = int(cmd)
     except:
