@@ -240,7 +240,7 @@ async def group(state: T_State = State()):
         await set_wd.reject(f"无效目标对象: {state['sid']}")
     await set_wd.finish(pm.UpdateWithdrawTime(state['sid'],state['withdrawTime']))
 
-# ----- 撤回时间更新 ----- 
+# ----- 最大张数更新 ----- 
 set_maxnum = on_command("setu_mn", permission=SUPERUSER, block=True, priority=10)
 # 获取参数
 @set_cd.handle()
