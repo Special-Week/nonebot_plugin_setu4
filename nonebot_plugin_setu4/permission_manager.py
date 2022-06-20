@@ -83,13 +83,6 @@ class PermissionManager:
     # --------------- 文件读写 开始 ---------------
     
     # --------------- 查询系统 开始 ---------------
-    # 查询sessionId
-    def ReadSessionId(self,sessionId):
-        try:
-            return self.cfg[sessionId]
-        except KeyError:
-            return False
-    
     # 查询上一次发送时间
     def ReadLastSend(self,sessionId):
         try:
@@ -148,9 +141,9 @@ class PermissionManager:
            (not self.setu_enable_private) and userType == 'private'
         ):
             # 如果会话本身未在名单中, 不启用功能        
-            if not self.ReadSessionId(sessionId):
-                logger.warning('涩图功能已在此会话中禁用')
-                raise PermissionError('涩图功能已在此会话中禁用！')
+            if sessionId in self.cfg.keys():
+                logger.warning(f'涩图功能在 {sessionId} 会话中未启用')
+                raise PermissionError('涩图功能在此会话中未启用！')
 
             # 查询冷却时间
             timeLeft = self.ReadCd(sessionId) + self.ReadLastSend(sessionId) - time.time()
