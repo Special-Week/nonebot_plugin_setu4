@@ -83,14 +83,14 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
         await setu.finish(e,at_sender=True)
 
     # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为90(图片质量太高发起来太费时间了)
-    if num >=3:
-        await setu.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50")
     if num >= 3 and num <= 6:
         quality = 70
     elif num >= 7:
         quality = 50
     else:
         quality = 90
+    if num >=3:
+        await setu.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50")
 
     # 控制台输出
     key = key if key else 'NULL'
