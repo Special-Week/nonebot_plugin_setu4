@@ -208,7 +208,7 @@ set_cd = on_command("setu_cd", permission=SUPERUSER, block=True, priority=10)
 @set_cd.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
-        state['cdTime'] = int(cmd)
+        state['cdTime'] = int(str(cmd))
     except:
         await set_cd.finish(f'无效参数: {cmd}, 请输入 正整数 或 0 为参数')
 # 群聊部分自动获取sid
@@ -250,7 +250,7 @@ set_maxnum = on_command("setu_mn", permission=SUPERUSER, block=True, priority=10
 @set_maxnum.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     try:
-        state['maxNum'] = int(cmd)
+        state['maxNum'] = int(str(cmd))
     except:
         await set_maxnum.finish(f'无效参数: {cmd}, 请输入 正整数 为参数')
 # 群聊部分自动获取sid
