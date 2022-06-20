@@ -78,7 +78,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     # 权限检查
     try:
         userType = 'SU' if (str(event.user_id) in nonebot.get_driver().config.superusers) else userType
-        r18,num,withdraw_time = pm.CheckPermission(sessionId,userType)
+        r18,num,withdraw_time = pm.CheckPermission(sessionId,r18flag,num,userType)
     except PermissionError as e:
         await setu.finish(e,at_sender=True)
 
