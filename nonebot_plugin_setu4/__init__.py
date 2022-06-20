@@ -93,9 +93,9 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
         await setu.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50")
 
     # 控制台输出
-    key = key if key else 'NULL'
-    flagLog = f"\nR18 == {str(r18)}\nkeyword == {key}\nnum == {num}\n"
-    logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")
+    _key = key if key else 'NULL'
+    flagLog = f"\nR18 == {str(r18)}\nkeyword == {_key}\nnum == {num}\n"
+    logger.info(f"key = {_key}\tr18 = {r18}\tnum = {num}")
 
     # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
     data = await get_setu(key, r18, num, quality)
