@@ -8,7 +8,7 @@ from nonebot.log import logger
 try:
     database_path = nonebot.get_driver().config.database_path
 except:
-    database_path = 'https://github.com/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
+    database_path = 'https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db'
 
 async def DownloadDatabase():
     headers = {
