@@ -33,7 +33,7 @@ https://github.com/Special-Week/youth-version-of-setu4
 
 [^2]:'https://github.com/Special-Week/nonebot_plugin_setu4/raw/main/nonebot_plugin_setu4/resource/lolicon.db'
 
-setu_save保存后下一次调用碰到这个setu会先从这个文件夹中有的文件匹配, 不需要再下载, 先要自己创建好文件夹
+setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进行匹配, 不需要再下载, 需要先要自己创建好文件夹
 
 一般无需科学上网, 但是先确保一下自己的服务器能否正常访问 [pixiv.re](https://pixiv.re)
 
