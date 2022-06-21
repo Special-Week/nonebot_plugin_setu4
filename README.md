@@ -18,7 +18,7 @@ https://github.com/Special-Week/youth-version-of-setu4
 
 |config             |type            |default    |example                                  |usage                                   |
 |-------------------|----------------|-----------|-----------------------------------------|----------------------------------------|
-|setu_enable_private|bool            |False      |setu_enable_private = True               |是否允许未在白名单的私聊会话使用(群聊照样默认ban)|
+|setu_enable_private|bool            |False      |setu_enable_private = True               |是否允许未在白名单的私聊会话使用(群聊照样需要指令开启, 看下文)|
 |setu_perm_cfg_path |str             |see example|setu_perm_cfg = './data/setu4'           |会话(群号或QQ号)启用、r18及其他独立配置项  |
 |setu_cd*           |int             |20         |setu_cd = 30                             |setu默认cd[0,+∞], 为0时无cd              |
 |setu_withdraw_time*|int             |100        |setu_withdraw_time = 30                  |setu默认撤回时间[0,100], 为0时不撤回      |
