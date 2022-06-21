@@ -1,6 +1,6 @@
 import asyncio
-import os
 import random
+import time
 from re import I, sub
 
 import nonebot
@@ -15,75 +15,75 @@ from nonebot.params import CommandArg, State
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
+from .fetch_resources import DownloadDatabase
 from .get_data import get_setu
-from .json_manager import read_json, remove_json, to_json, write_json
-from .setu_message import setu_sendcd, setu_sendmessage
+from .permission_manager import PermissionManager
+from .resource.setu_message import setu_sendmessage
 
-# setu cd,可在env设置,默认20s,类型int
-try:
-    cdTime = nonebot.get_driver().config.setu_cd
+# --------------- 初始化变量 ---------------
+# 实例化权限管理
+pm = PermissionManager()
+
+# 读取setu的正则表达式
+try: 
+    setu_regex = repr(nonebot.get_driver().config.setu_regex)
 except:
-    cdTime = 20
+    setu_regex = r"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?"
 
-# setu_ban名单,可在env设置,类型string列表
-try:
-    banlist = nonebot.get_driver().config.setu_ban
-except:
-    banlist = []
+# --------------- 一些需要复用的功能 ---------------
+# 根据会话类型生成sessionId
+def sessionId(event:MessageEvent):
+    if isinstance(event, PrivateMessageEvent):
+        sessionId = 'user_' + str(event.user_id)
+    if isinstance(event, GroupMessageEvent):
+        sessionId = 'group_' + str(event.group_id)
+    return sessionId
 
-# 撤回时间,可在env设置,默认100s,类型int
-try:
-    withdraw_time = nonebot.get_driver().config.setu_withdraw_time
-except:
-    withdraw_time = 100
-
-# 一次最大多少张图片,可在env设置,默认10张,类型int
-try:
-    max_num = nonebot.get_driver().config.setu_max_num
-except:
-    max_num = 10
-
-
-# 先读一读试试
-try:
-    fp = open('data/setu4/r18list.txt')
-    fp.close()
-# 没有的话咱就新建
-except:
-    # 尝试新建data文件夹
+def verifySid(sid:str):
     try:
-        os.makedirs('data/setu4')
-    except FileExistsError:
-        logger.info('data/setu4文件夹已存在')
-    except Exception as e:
-        raise Exception(f'无法新建data/setu4文件夹, 请检查您的工作路径及读写权限!\n{e}')
-    fp = open('data/setu4/r18list.txt', 'w')
-    fp.write("114514\n")
-    fp.close()
+        sType, sId = sid.split('_')
+        if sType in ['group','user']:
+            if sId.isdigit():
+                return True
+        return False
+    except:
+        return False
 
+# --------------- 发送setu的部分 ---------------
 # 正则部分
 setu = on_regex(
-    r"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?",
+    setu_regex,
     flags=I,
     permission=PRIVATE_FRIEND | GROUP,
-    priority=10,
+    priority=20,
     block=True
 )
-
 
 # 响应器处理操作
 @setu.handle()
 async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
-    global mid
+    # 获取用户输入的参数
     args = list(state["_matched_groups"])
     r18flag = args[2]
-    key = args[3]
-    key = sub('[\'\"]', '', key)  # 去掉引号防止sql注入
-    num = args[1]
-    num = int(sub(r"[张|个|份|x|✖️|×|X|*]", "", num)) if num else 1
+    key = sub('[\'\"]', '', args[3])  # 去掉引号防止sql注入
+    num = int(sub(r"[张|个|份|x|✖️|×|X|*]", "", args[1])) if args[1] else 1
 
-    if num > max_num or num < 1:
-        await setu.finish(f"数量需要在1-{max_num}之间")
+    # 根据会话类型生成sessionId
+    if isinstance(event, PrivateMessageEvent):
+        sessionId = 'user_' + str(event.user_id)
+        userType  = 'private'
+    if isinstance(event, GroupMessageEvent):
+        sessionId = 'group_' + str(event.group_id)
+        userType  = 'group'
+    # 权限检查
+    try:
+        userType = 'SU' if (str(event.user_id) in nonebot.get_driver().config.superusers) else userType
+        r18,num,withdraw_time = pm.CheckPermission(sessionId,r18flag,num,userType)
+    except PermissionError as e:
+        await setu.finish(str(e),at_sender=True)
+
+    # 通过检查后，更改模式为发送中
+    pm.UpdateSending(sessionId)
 
     # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为90(图片质量太高发起来太费时间了)
     if num >= 3 and num <= 6:
@@ -92,165 +92,190 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
         quality = 50
     else:
         quality = 90
-
     if num >=3:
-        await setu.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7-{max_num}:quality = 50")
+        await setu.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50")
 
+    # 控制台输出
+    _key = key if key else 'NULL'
+    flagLog = f"\nR18 == {str(r18)}\nkeyword == {_key}\nnum == {num}\n"
+    logger.info(f"key = {_key}\tr18 = {r18}\tnum = {num}")
 
-
-    qid = event.get_user_id()
-    mid = event.message_id
-    sid = event.get_session_id()
-    # 判断该群聊setu功能是否被禁用
-    for session_id in banlist:
-        if str(session_id) in sid:
-            await setu.finish("涩图功能已在此会话中禁用！")
-    data = read_json()
-    try:
-        cd = event.time - data[qid][0]
-    except Exception:
-        cd = cdTime + 1
-
-    # 读取r18列表
-    r18list = []
-    with open('data/setu4/r18list.txt', 'r') as fp:
-        while True:
-            line = fp.readline()
-            if not line:
-                break
-            r18list.append(line.strip("\n"))
-
-    # 先判断r18flag和私聊是不是都是True进行赋值
-    r18 = True if (isinstance(event, PrivateMessageEvent)
-                   and r18flag) else False
-    # 如果r18是false的话在进行r18list判断
-    if not r18:
-        for groubnumber in r18list:
-            if groubnumber in sid:
-                r18 = (True if (r18flag) else False)
-
-    if key == "":
-        flagLog = f"\nR18 == {str(r18)}\nkeyword == NULL\nnum == {num}\n"
-    else:
-        flagLog = f"\nR18 == {str(r18)}\nkeyword == {key}\nnum == {num}\n"
-
-    logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")       # 控制台输出
-
-    # cd判断,superusers无视cd
-    if (
-        cd > cdTime
-        or event.get_user_id() in nonebot.get_driver().config.superusers
-    ):
-        write_json(qid, event.time, mid, data)
-        # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
-        data = await get_setu(key, r18, num, quality)
-
-        # 发送的消息列表
-        message_list = []
-        for pic in data:
-            # 如果状态为True,说明图片拿到了
-            if pic[2]:
-                message = f"{random.choice(setu_sendmessage)}{flagLog}" + \
-                    Message(pic[1]) + MessageSegment.image(pic[0])
-                message_list.append(message)
-            # 状态为false的消息,图片没拿到
-            else:
-                message = pic[0] + pic[1]
-                message_list.append(message)
-
-        # 为后面撤回消息做准备
-        setu_msg_id = []
-        # 尝试发送
-        try:
-            if isinstance(event, PrivateMessageEvent):
-                # 私聊直接发送
-                for msg in message_list:
-                    setu_msg_id.append((await setu.send(msg))['message_id'])    # 我超这串代码好丑啊
-            elif isinstance(event, GroupMessageEvent):
-                # 群聊以转发消息的方式发送
-                msgs = [to_json(msg, "setu-bot", bot.self_id)
-                        for msg in message_list]
-                setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
-
-        # 发送失败
-        except ActionFailed as e:
-            logger.warning(e)
-            remove_json(qid)
-            await setu.finish(
-                message=Message(f"消息被风控了捏，图发不出来，请尽量减少发送的图片数量"),
-                at_sender=True,
-            )
-
-    # cd还没过的情况
-    else:
-        time_last = cdTime - cd
-        hours, minutes, seconds = 0, 0, 0
-        if time_last >= 60:
-            minutes, seconds = divmod(time_last, 60)
-            hours, minutes = divmod(minutes, 60)
+    # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
+    data = await get_setu(key, r18, num, quality)
+    # 发送的消息列表
+    message_list = []
+    for pic in data:
+        # 如果状态为True,说明图片拿到了
+        if pic[2]:
+            message = f"{random.choice(setu_sendmessage)}{flagLog}" + \
+                Message(pic[1]) + MessageSegment.image(pic[0])
+            message_list.append(message)
+        # 状态为false的消息,图片没拿到
         else:
-            seconds = time_last
-        cd_msg = f"{str(hours) + '小时' if hours else ''}{str(minutes) + '分钟' if minutes else ''}{str(seconds) + '秒' if seconds else ''}"
+            message = pic[0] + pic[1]
+            message_list.append(message)
 
-        await setu.send(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}", at_sender=True)
+    # 为后面撤回消息做准备
+    setu_msg_id = []
+    # 尝试发送
+    try:
+        startTime = time.time() # 记录开始发送的时间
+        if isinstance(event, PrivateMessageEvent):
+            # 私聊直接发送
+            for msg in message_list:
+                setu_msg_id.append((await setu.send(msg))['message_id'])
+                await asyncio.sleep(0.5)
+        elif isinstance(event, GroupMessageEvent):
+            # 群聊以转发消息的方式发送
+            msgs = []
+            for msg in message_list:
+                msgs.append({
+                    'type': 'node',
+                    'data': {
+                        'name': "setu-bot",
+                        'uin': bot.self_id,
+                        'content': msg
+                    }
+                })
+            setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
+        pm.UpdateLastSend(sessionId)
+        pm.UpdateSending(sessionId,False)
+    # 发送失败
+    except ActionFailed as e:
+        pm.UpdateSending(sessionId,False)
+        logger.warning(e)
+        await setu.finish(
+            message=Message(f"消息被风控了捏，图发不出来，请尽量减少发送的图片数量"),
+            at_sender=True,
+        )
 
-     # 自动撤回涩图
+    # 自动撤回涩图
     if withdraw_time != 0:
         try:
-            await asyncio.sleep(withdraw_time)
+            timeLeft = withdraw_time + startTime - time.time() # 计算从开始发送到目前仍剩余的保留时间
+            await asyncio.sleep(1 if timeLeft <= 0 else timeLeft)
             for msg_id in setu_msg_id:
                 await bot.delete_msg(message_id=msg_id)
         except:
             pass
 
 
-# r18列表添加用的,权限SUPERSUSER
-addr18list = on_command("add_r18", permission=SUPERUSER, block=True, priority=10)
+# --------------- 权限管理部分 ---------------
+# ----- 白名单添加与解除 -----
+open_setu = on_command("setu_wl", permission=SUPERUSER, block=True, priority=10)
+# 分析是新增还是删除
+@open_setu.handle()
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    if   'add' in str(cmd):
+        state['add_mode'] = True
+    elif 'del' in str(cmd):
+        state['add_mode'] = False
+    else:
+        await open_setu.finish(f'无效参数: {cmd}, 请输入 add 或 del 为参数')
+# 群聊部分自动获取sid
+@open_setu.handle()
+async def group(event:GroupMessageEvent, state: T_State = State()):
+    state['sid'] = 'group_' + str(event.group_id)
+# 手动获取sid, 并调用对应的方法进行处理
+@open_setu.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+async def _(state: T_State = State()):
+    sid = str(state['sid'])
+    if not verifySid(sid):
+        await open_setu.reject(f"无效目标对象: {sid}")
+    await open_setu.finish(pm.UpdateWhiteList(sid,state['add_mode']))
 
+# ----- r18添加与解除 ----- 
+set_r18 = on_command("setu_r18", permission=SUPERUSER, block=True, priority=10)
+# 分析是开启还是关闭
+@set_r18.handle()
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    if 'on' in str(cmd):
+        state['r18Mode'] = True
+    elif 'off' in str(cmd):
+        state['r18Mode'] = False
+    else:
+        await set_r18.finish(f'无效参数: {cmd}, 请输入 on 或 off 为参数')
+# 群聊部分自动获取sid
+@set_r18.handle()
+async def group(event:GroupMessageEvent, state: T_State = State()):
+    state['sid'] = 'group_' + str(event.group_id)
+# 手动获取sid, 并调用对应的方法进行处理
+@set_r18.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+async def _(state: T_State = State()):
+    sid = str(state['sid'])
+    if not verifySid(sid):
+        await set_r18.reject(f"无效目标对象: {sid}")
+    await set_r18.finish(pm.UpdateR18(sid,state['r18Mode']))
 
-@addr18list.handle()
-async def _(arg: Message = CommandArg()):
-    # 获取消息文本
-    msg = arg.extract_plain_text().strip().split()[0]
-    # 写入文件
-    with open("data/setu4/r18list.txt", "a") as f:
-        f.write(msg + "\n")
-    await addr18list.finish("ID:"+msg+"添加成功")
+# ----- cd时间更新 ----- 
+set_cd = on_command("setu_cd", permission=SUPERUSER, block=True, priority=10)
+# 获取参数
+@set_cd.handle()
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    try:
+        state['cdTime'] = int(str(cmd))
+    except:
+        await set_cd.finish(f'无效参数: {cmd}, 请输入 正整数 或 0 为参数')
+# 群聊部分自动获取sid
+@set_cd.handle()
+async def group(event:GroupMessageEvent, state: T_State = State()):
+    state['sid'] = 'group_' + str(event.group_id)
+# 手动获取sid, 并调用对应的方法进行处理
+@set_cd.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+async def _(state: T_State = State()):
+    sid = str(state['sid'])
+    if not verifySid(sid):
+        await set_cd.reject(f"无效目标对象: {sid}")
+    await set_cd.finish(pm.UpdateCd(sid,state['cdTime']))
 
+# ----- 撤回时间更新 ----- 
+set_wd = on_command("setu_wd", permission=SUPERUSER, block=True, priority=10)
+# 获取参数
+@set_wd.handle()
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    try:
+        state['withdrawTime'] = int(str(cmd))
+    except:
+        await set_wd.finish(f'无效参数: {cmd}, 请输入 正整数 或 0 为参数')
+# 群聊部分自动获取sid
+@set_wd.handle()
+async def group(event:GroupMessageEvent, state: T_State = State()):
+    state['sid'] = 'group_' + str(event.group_id)
+# 手动获取sid, 并调用对应的方法进行处理
+@set_wd.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+async def _(state: T_State = State()):
+    sid = str(state['sid'])
+    if not verifySid(sid):
+        await set_wd.reject(f"无效目标对象: {sid}")
+    await set_wd.finish(pm.UpdateWithdrawTime(sid,state['withdrawTime']))
 
-# r18列表删除用的,权限SUPERSUSER
-del_r18list = on_command("del_r18", permission=SUPERUSER, block=True, priority=10)
+# ----- 最大张数更新 ----- 
+set_maxnum = on_command("setu_mn", permission=SUPERUSER, block=True, priority=10)
+# 获取参数
+@set_maxnum.handle()
+async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
+    try:
+        state['maxNum'] = int(str(cmd))
+    except:
+        await set_maxnum.finish(f'无效参数: {cmd}, 请输入 正整数 为参数')
+# 群聊部分自动获取sid
+@set_maxnum.handle()
+async def group(event:GroupMessageEvent, state: T_State = State()):
+    state['sid'] = 'group_' + str(event.group_id)
+# 手动获取sid, 并调用对应的方法进行处理
+@set_maxnum.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+async def _(state: T_State = State()):
+    sid = str(state['sid'])
+    if not verifySid(sid):
+        await set_maxnum.reject(f"无效目标对象: {sid}")
+    await set_maxnum.finish(pm.UpdateMaxNum(sid,state['maxNum']))
 
-
-@del_r18list.handle()
-async def _(arg: Message = CommandArg()):
-    # 获取消息文本
-    msg = arg.extract_plain_text().strip().split()[0]
-    # 写入文件
-    with open("data/setu4/r18list.txt", 'r') as file:
-        lines = file.readlines()
-        # 找到msg在lines的位置
-        for i in range(len(lines)):
-            if (msg+'\n') == lines[i]:
-                del lines[i]
-                break
-    with open("data/setu4/r18list.txt", 'w') as file:
-        # 将删除行后的数据写入文件
-        file.writelines(lines)
-
-    await del_r18list.finish("ID:"+msg+"删除成功")
-
-
-get_r18list = on_command("r18名单", permission=SUPERUSER, block=True, priority=10)
-
-
-@get_r18list.handle()
+# --------------- 数据库更新 ---------------
+setuupdate = on_command('setu_db', permission=SUPERUSER, block=True, priority=10)
+@setuupdate.handle()
 async def _():
-    r18list = []
-    with open('data/setu4/r18list.txt') as fp:
-        while True:
-            line = fp.readline()
-            if not line:
-                break
-            r18list.append(line.strip("\n"))
-    await get_r18list.finish("R18名单：\n" + str(r18list))
+    try:
+        remsg = await DownloadDatabase()
+    except Exception as e:
+        remsg = f'获取 lolicon.db 失败: {e}'
+    await setuupdate.finish(remsg)
