@@ -161,7 +161,7 @@ class PermissionManager:
                     hours, minutes = divmod(minutes, 60)
                 else:
                     seconds = timeLeft
-                cd_msg = f"{str(hours) + '小时' if hours else ''}{str(minutes) + '分钟' if minutes else ''}{str(seconds) + '秒' if seconds else ''}"
+                cd_msg = f"{str(round(hours)) + '小时' if hours else ''}{str(round(minutes)) + '分钟' if minutes else ''}{str(round(seconds,3)) + '秒' if seconds else ''}"
                 logger.warning(f'setu的cd还有{cd_msg}')
                 raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
         
