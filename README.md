@@ -4,6 +4,8 @@ https://github.com/Special-Week/youth-version-of-setu4
 
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(随机修改左上角一颗像素点)
 
+目前数据库共49667条记录
+
 安装方式:
 
     pip install nonebot_plugin_setu4
