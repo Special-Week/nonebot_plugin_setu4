@@ -1,8 +1,8 @@
-# 仓库目前施工中, pypi上目前为青春版
-https://github.com/Special-Week/youth-version-of-setu4
 # nonebot_plugin_setu4
 
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(随机修改左上角一颗像素点)
+
+这里还有青春版(https://github.com/Special-Week/youth-version-of-setu4), 简化了很多设置, ghs更加纯粹
 
 目前数据库共49667条记录
 
