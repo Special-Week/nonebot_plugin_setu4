@@ -1,14 +1,17 @@
-from httpx import AsyncClient
-from nonebot import logger
-from nonebot.log import logger
-import random
 import asyncio
-import nonebot
-import sqlite3
 import os
-from pathlib import Path
-from PIL import Image
+import random
+import sqlite3
 from io import BytesIO
+from pathlib import Path
+
+import nonebot
+from httpx import AsyncClient
+from nonebot.log import logger
+from PIL import Image
+
+from .fetch_resources import DownloadPic
+
 error = "Error:"
 
 
@@ -83,12 +86,21 @@ async def pic(setu, quality, client):
     if file_name in all_file_name:
         logger.info("图片本地存在")
         image = Image.open(save_path + "/" + file_name)
-    # 如果没有就down_pic
+    # 如果没有就下载
     else:
         logger.info("图片本地不存在,正在去i.pixiv.re下载")
-        content = await down_pic(setu_url, client)
+        content = await DownloadPic(setu_url, client)
         if type(content) == int:
             return [error, f"图片下载失败", False, setu_url]
+        # 如果有本地保存路径则存储
+        if save_path:
+            file_name = setu_url.split("/")[-1]
+            try:
+                with open(f"{save_path}/{file_name}", "wb") as f:
+                    f.write(content)
+                all_file_name.append(file_name)
+            except Exception as e:
+                logger.error(f'图片存储失败: {e}')
         image = Image.open(BytesIO(content))
 
     pic = await change_pixel(image, quality)
@@ -96,7 +108,7 @@ async def pic(setu, quality, client):
 
 
 # 随机修改左上角第一颗像素的颜色,并且返还图片的base64编码
-async def change_pixel(image, quality):
+async def change_pixel(image:Image, quality):
     image = image.convert("RGB")
     image.load()[0, 0] = (random.randint(0, 255),
                           random.randint(0, 255), random.randint(0, 255))
@@ -105,28 +117,3 @@ async def change_pixel(image, quality):
     # pic是的图片的base64编码
     pic = byte_data.getvalue()
     return pic
-
-
-
-# 下载图片并且返回content,或者status_code
-async def down_pic(url, client):
-    headers = {
-        "Referer": "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=wwwtop_accounts_index",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
-    }
-    re = await client.get(url=url, headers=headers, timeout=120)
-    if re.status_code == 200:
-        logger.success("成功获取图片")
-        if save_path:
-            file_name = url.split("/")[-1]
-            try:
-                with open(f"{save_path}/{file_name}", "wb") as f:
-                    f.write(re.content)
-                all_file_name.append(file_name)
-            except Exception as e:
-                logger.error(f'图片存储失败: {e}')
-        return re.content
-    else:
-        logger.error(f"获取图片失败: {re.status_code}")
-        return re.status_code
