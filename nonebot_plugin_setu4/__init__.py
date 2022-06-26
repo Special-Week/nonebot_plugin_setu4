@@ -271,27 +271,27 @@ async def _(state: T_State = State()):
     await set_maxnum.finish(pm.UpdateMaxNum(sid,state['maxNum']))
 
 # ----- 黑名单添加与解除 -----
-open_setu = on_command("setu_ban", permission=SUPERUSER, block=True, priority=10)
+ban_setu = on_command("setu_ban", permission=SUPERUSER, block=True, priority=10)
 # 分析是新增还是删除
-@open_setu.handle()
+@ban_setu.handle()
 async def cmdArg(cmd:Message = CommandArg(), state: T_State = State()):
     if   'add' in str(cmd):
         state['add_mode'] = True
     elif 'del' in str(cmd):
         state['add_mode'] = False
     else:
-        await open_setu.finish(f'无效参数: {cmd}, 请输入 add 或 del 为参数')
+        await ban_setu.finish(f'无效参数: {cmd}, 请输入 add 或 del 为参数')
 # 群聊部分自动获取sid
-@open_setu.handle()
+@ban_setu.handle()
 async def group(event:GroupMessageEvent, state: T_State = State()):
     state['sid'] = 'group_' + str(event.group_id)
 # 手动获取sid, 并调用对应的方法进行处理
-@open_setu.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
+@ban_setu.got('sid',prompt='请按照 “会话类型_会话id” 的格式输入目标对象, 例如:\ngroup_114514\nuser_1919810')
 async def _(state: T_State = State()):
     sid = str(state['sid'])
     if not verifySid(sid):
-        await open_setu.reject(f"无效目标对象: {sid}")
-    await open_setu.finish(pm.UpdateBanList(sid,state['add_mode']))
+        await ban_setu.reject(f"无效目标对象: {sid}")
+    await ban_setu.finish(pm.UpdateBanList(sid,state['add_mode']))
 
 # --------------- 数据库更新 ---------------
 setuupdate = on_command('setu_db', permission=SUPERUSER, block=True, priority=10)
