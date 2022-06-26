@@ -105,6 +105,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
         data = await get_setu(key, r18, num, quality)
     except:
         pm.UpdateSending(sessionId,False)
+        await setu.finish("图片Download失败",at_sender=True)
     # 发送的消息列表
     message_list = []
     for pic in data:
