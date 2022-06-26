@@ -2,7 +2,7 @@
 
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(随机修改左上角一颗像素点)
 
-不喜欢繁杂的权限控制这里还有[青春版](https://github.com/Special-Week/youth-version-of-setu4), 简化了很多设置, 群聊私聊全开, 只有必要的权限控制, 相比完整版功能精简, ghs比较纯粹
+不喜欢繁杂的权限控制这里推荐[青春版](https://github.com/Special-Week/youth-version-of-setu4), 简化了很多设置, 群聊私聊全开, 只有必要的权限控制, 相比完整版功能精简
 
 目前数据库共49667条记录
 
