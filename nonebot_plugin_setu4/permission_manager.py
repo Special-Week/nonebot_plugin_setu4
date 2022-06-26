@@ -2,6 +2,7 @@ import os
 import random
 import time
 from pathlib import Path
+from ast import literal_eval
 
 import nonebot
 from nonebot.log import logger
@@ -18,12 +19,18 @@ except:
 
 '''{
     'group_114':{
-        'last'     : 114514, # 最后一次发送setu的时间
         'cd'       : 30,     # cd时长
         'r18'      : True,   # r18开关
         'withdraw' : 100,    # 撤回延时
         'maxnum'   : 10      # 单次最高张数
-    }
+    },
+    'last':{
+        'user_1919' : 810    # 最近一次发送setu的时间
+    },
+    'ban':[
+        'user_1919',         # 禁用的群组或用户，跨会话生效，会覆盖白名单设置
+        'group_810'
+    ]
 }'''
 
 
@@ -31,25 +38,29 @@ class PermissionManager:
     def __init__(self) -> None:
         # 读取全局变量
         try: 
-            self.setu_perm_cfg_path = str(Path(nonebot.get_driver().config.setu_perm_cfg_path,'setu_perm_cfg.json'))
+            self.setu_perm_cfg_path  = str(Path(nonebot.get_driver().config.setu_perm_cfg_path,'setu_perm_cfg.json'))
         except:
-            self.setu_perm_cfg_path = 'data/setu4/setu_perm_cfg.json'
+            self.setu_perm_cfg_path  = 'data/setu4/setu_perm_cfg.json'
         try: 
-            self.setu_cd            = int(nonebot.get_driver().config.setu_cd)
+            self.setu_cd             = int(nonebot.get_driver().config.setu_cd)
         except:
-            self.setu_cd            = 30
+            self.setu_cd             = 30
         try: 
-            self.setu_withdraw_time = int(nonebot.get_driver().config.setu_withdraw_time) if int(nonebot.get_driver().config.setu_withdraw_time)<100 else 100
+            self.setu_withdraw_time  = int(nonebot.get_driver().config.setu_withdraw_time) if int(nonebot.get_driver().config.setu_withdraw_time)<100 else 100
         except:
-            self.setu_withdraw_time = 100
+            self.setu_withdraw_time  = 100
         try: 
-            self.setu_max_num       = int(nonebot.get_driver().config.setu_max_num)
+            self.setu_max_num        = int(nonebot.get_driver().config.setu_max_num)
         except:
-            self.setu_max_num       = 10
+            self.setu_max_num        = 10
         try: 
-            self.setu_enable_private    = bool(nonebot.get_driver().config.setu_enable_private)
+            self.setu_enable_private = bool(literal_eval(nonebot.get_driver().config.setu_enable_private))
         except:
             self.setu_enable_private = False
+        try:
+            self.setu_disable_wlist  = bool(literal_eval(nonebot.get_driver().config.setu_disable_wlist))
+        except:
+            self.setu_disable_wlist  = False
         # 规范全局变量的取值范围
         self.setu_cd            = self.setu_cd            if self.setu_cd            > 0   else 0
         self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time > 0   else 0
@@ -89,7 +100,7 @@ class PermissionManager:
     # 查询上一次发送时间
     def ReadLastSend(self,sessionId):
         try:
-            return self.cfg[sessionId]['last']
+            return self.cfg['last'][sessionId]
         except KeyError:
             return 0
 
@@ -120,11 +131,23 @@ class PermissionManager:
             return self.cfg[sessionId]['r18']
         except KeyError:
             return False
+    
+    # 查询黑名单
+    def ReadBanList(self,sessionId):
+        try:
+            return sessionId in self.cfg['ban']
+        except KeyError:
+            return False
+
     # --------------- 查询系统 结束 ---------------
     
     # --------------- 逻辑判断 开始 ---------------
     # 查询权限, 并返回修正过的参数
     def CheckPermission(self,sessionId:str,r18flag:bool,num:int,userType:str='group'):
+        logger.debug(f'-==- {sessionId} -===-\
+            \ndisable_wlist  : {self.setu_disable_wlist}\
+            \nenable_private : {self.setu_enable_private}\
+            \nuserType       : {userType}')
         """查询权限, 并返回修正过的参数
 
         Args:
@@ -142,28 +165,36 @@ class PermissionManager:
         """
         # 检查是否正在发送中
         if sessionId in self.sending:
-            raise PermissionError(f'{random.choice(setu_sendcd)}, 当前已有setu在发送中, 请发送完毕后重试！')
-        # 检查会话和触发用户是否满足跳过条件
-        if userType == 'group' or (
-           (not self.setu_enable_private) and userType == 'private'
-        ):
-            # 如果会话本身未在名单中, 不启用功能        
-            if not sessionId in self.cfg.keys():
-                logger.warning(f'涩图功能在 {sessionId} 会话中未启用')
-                raise PermissionError('涩图功能在此会话中未启用！')
-
-            # 查询冷却时间
-            timeLeft = self.ReadCd(sessionId) + self.ReadLastSend(sessionId) - time.time()
-            if timeLeft > 0:
-                hours, minutes, seconds = 0, 0, 0
-                if timeLeft >= 60:
-                    minutes, seconds = divmod(timeLeft, 60)
-                    hours, minutes = divmod(minutes, 60)
-                else:
-                    seconds = timeLeft
-                cd_msg = f"{str(round(hours)) + '小时' if hours else ''}{str(round(minutes)) + '分钟' if minutes else ''}{str(round(seconds,3)) + '秒' if seconds else ''}"
-                logger.warning(f'setu的cd还有{cd_msg}')
-                raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
+            raise PermissionError(f'{random.choice(setu_sendcd)}\n当前已有setu在发送中, 请发送完毕后重试！')
+        # 优先采用黑名单检查
+        if self.ReadBanList(sessionId):
+            logger.warning(f'涩图功能对 {sessionId} 禁用！')
+            raise PermissionError(f'涩图功能对 {sessionId} 禁用！')
+        # 采用白名单检查
+        # 如果白名单被禁用则跳过
+        if not self.setu_disable_wlist: 
+            # 如果没被禁用则开始检查
+            if userType == 'group' or (
+               (not self.setu_enable_private) and userType == 'private'
+            ):
+                # 如果会话本身未在名单中, 不启用功能        
+                if not sessionId in self.cfg.keys():
+                    logger.warning(f'涩图功能在 {sessionId} 会话中未启用')
+                    raise PermissionError('涩图功能在此会话中未启用！')
+        
+        
+        # 查询冷却时间
+        timeLeft = self.ReadCd(sessionId) + self.ReadLastSend(sessionId) - time.time()
+        if timeLeft > 0:
+            hours, minutes, seconds = 0, 0, 0
+            if timeLeft >= 60:
+                minutes, seconds = divmod(timeLeft, 60)
+                hours, minutes = divmod(minutes, 60)
+            else:
+                seconds = timeLeft
+            cd_msg = f"{str(round(hours)) + '小时' if hours else ''}{str(round(minutes)) + '分钟' if minutes else ''}{str(round(seconds,3)) + '秒' if seconds else ''}"
+            logger.warning(f'setu的cd还有{cd_msg}')
+            raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
         
         # 检查r18权限, 图片张数, 撤回时间
         r18  = True if r18flag and self.ReadR18(sessionId) else False
@@ -175,9 +206,11 @@ class PermissionManager:
     # 最后一次成功发送的记录
     def UpdateLastSend(self,sessionId):
         try:
-            self.cfg[sessionId]['last'] = time.time()
+            self.cfg['last'][sessionId] = time.time()
         except KeyError:
-            pass
+            self.cfg['last'] = {
+                sessionId : time.time()
+            }
     
     # 记录正在发送中的群组
     def UpdateSending(self,sessionId,add_mode=True):
@@ -191,7 +224,7 @@ class PermissionManager:
     # --------------- 冷却更新 结束 ---------------
 
     # --------------- 增删系统 开始 ---------------
-    def UpdateWhiteList(self,sessionId,add_mode):
+    def UpdateWhiteList(self,sessionId:str,add_mode:bool):
         # 白名单部分
         if add_mode:
             if sessionId in self.cfg.keys():
@@ -281,7 +314,24 @@ class PermissionManager:
                 self.WriteCfg()
                 return f'成功关闭{sessionId}的r18权限'
             return f'{sessionId}未开启r18'
+    
+    def UpdateBanList(self,sessionId:str,add_mode:bool):
+        # 加入黑名单
+        if add_mode:
+            try:
+                if sessionId in self.cfg['ban']:
+                    return f'{sessionId}已在黑名单'
+            except KeyError:
+                self.cfg['ban'] = []
+            self.cfg['ban'].append(sessionId)
+            self.WriteCfg()
+            return f'成功添加{sessionId}至黑名单'
+        # 移出黑名单
+        else:
+            try:
+                self.cfg['ban'].remove(sessionId)
+                self.WriteCfg()
+                return f'成功移除{sessionId}出黑名单'
+            except ValueError:
+                return f'{sessionId}不在黑名单'
     # --------------- 增删系统 结束 ---------------
-
-
-

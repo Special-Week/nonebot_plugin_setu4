@@ -10,6 +10,7 @@ try:
 except:
     database_path = 'https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db'
 
+# 下载数据库并返回content
 async def DownloadDatabase():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
