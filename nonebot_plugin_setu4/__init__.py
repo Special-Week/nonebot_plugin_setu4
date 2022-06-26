@@ -101,7 +101,10 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     logger.info(f"key = {_key}\tr18 = {r18}\tnum = {num}")
 
     # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
-    data = await get_setu(key, r18, num, quality)
+    try:
+        data = await get_setu(key, r18, num, quality)
+    except:
+        pm.UpdateSending(sessionId,False)
     # 发送的消息列表
     message_list = []
     for pic in data:
