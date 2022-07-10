@@ -2,7 +2,6 @@ import asyncio
 import random
 import time
 from re import I, sub
-
 import nonebot
 from nonebot import on_command, on_regex
 from nonebot.adapters.onebot.v11 import (GROUP, PRIVATE_FRIEND, Bot,
@@ -101,9 +100,6 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     except PermissionError as e:
         await setu.finish(str(e),at_sender=True)
 
-    # 通过检查后，更改模式为发送中
-    pm.UpdateSending(sessionId)
-
     # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为95(图片质量太高发起来太费时间了)
     # quality = 95就是原图
     if num >= 3 and num <= 6:
@@ -119,13 +115,11 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
     _key = key if key else 'NULL'
     flagLog = f"\nR18 == {str(r18)}\nkeyword == {_key}\nnum == {num}\n"
     logger.info(f"key = {_key}\tr18 = {r18}\tnum = {num}")
-
+    # 记录时间, 计算CD用
+    pm.UpdateLastSend(sessionId)
     # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
-    try:
-        data = await get_setu(key, r18, num, quality)
-    except:
-        pm.UpdateSending(sessionId,False)
-        await setu.finish("图片Download失败",at_sender=True)
+    data = await get_setu(key, r18, num, quality)
+
     # 发送的消息列表
     message_list = []
     for pic in data:
@@ -162,11 +156,8 @@ async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
                     }
                 })
             setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
-        pm.UpdateLastSend(sessionId)
-        pm.UpdateSending(sessionId,False)
     # 发送失败
     except ActionFailed as e:
-        pm.UpdateSending(sessionId,False)
         logger.warning(e)
         await setu.finish(
             message=Message(f"消息被风控了捏，图发不出来，请尽量减少发送的图片数量"),
