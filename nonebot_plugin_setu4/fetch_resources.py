@@ -44,5 +44,5 @@ async def DownloadPic(url, client):
             logger.error(f"获取图片失败: {re.status_code}")
             return re.status_code
     except:
-        logger.error("Http访问超时")
+        logger.error("http访问超时")
         return 408
