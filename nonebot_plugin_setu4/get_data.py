@@ -4,16 +4,12 @@ import random
 import sqlite3
 from io import BytesIO
 from pathlib import Path
-
 import nonebot
 from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
-
 from .fetch_resources import DownloadPic
-
 error = "Error:"
-
 
 # save_path,可在env设置, 默认False, 类型bool或str
 try:
@@ -23,11 +19,6 @@ except:
     save_path = False
     all_file_name = []
 
-
-# 本地setu路径,默认在插件目录下的resource/img
-# img_path = str(Path(os.path.join(os.path.dirname(__file__), "resource/img")))
-# 读取file_name里面的全部文件名
-# all_file_name = os.listdir(img_path)
 
 
 # 返回列表,内容为setu消息(列表套娃)
@@ -52,7 +43,6 @@ async def get_setu(keyword="", r18=False, num=1, quality=75) -> list:
         for setu in db_data:
             tasks.append(pic(setu, quality, client))
         data = await asyncio.gather(*tasks)
-
     return data
 
 
@@ -88,7 +78,7 @@ async def pic(setu, quality, client):
         logger.info("图片本地不存在,正在去i.pixiv.re下载")
         content = await DownloadPic(setu_url, client)
         if type(content) == int:
-            return [error, f"图片下载失败", False, setu_url]
+            return [error, f"图片下载失败, 状态码: {content}", False, setu_url]
         # 如果有本地保存路径则存储
         if save_path:
             file_name = setu_url.split("/")[-1]
@@ -99,15 +89,13 @@ async def pic(setu, quality, client):
             except Exception as e:
                 logger.error(f'图片存储失败: {e}')
         image = Image.open(BytesIO(content))
-
     pic = await change_pixel(image, quality)
     return [pic, data, True, setu_url]
-
 
 # 随机修改左上角第一颗像素的颜色,并且返还图片的base64编码
 async def change_pixel(image:Image, quality):
     image = image.convert("RGB")
-    image.load()[0, 0] = (random.randint(0, 255),
+    image.load()[0, 1] = (random.randint(0, 255),
                           random.randint(0, 255), random.randint(0, 255))
     byte_data = BytesIO()
     image.save(byte_data, format="JPEG", quality=quality)
