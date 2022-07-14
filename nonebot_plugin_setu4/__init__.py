@@ -309,7 +309,7 @@ async def _(state: T_State = State()):
     await ban_setu.finish(pm.UpdateBanList(sid,state['add_mode']))
     
 # --------------- 发送帮助信息 ---------------
-setuhelp = on_command("setuhelp",aliases={"setu帮助","色图help","色图帮助"},block=True, priority=10)
+setuhelp = on_command("setu_help",aliases={"setu_帮助","色图_help","色图_帮助"},block=True, priority=10)
 @setuhelp.handle()
 async def _():
     help_msg = """setu指令:
