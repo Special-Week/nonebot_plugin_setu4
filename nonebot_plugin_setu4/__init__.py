@@ -307,6 +307,36 @@ async def _(state: T_State = State()):
     if not verifySid(sid):
         await ban_setu.reject(f"无效目标对象: {sid}")
     await ban_setu.finish(pm.UpdateBanList(sid,state['add_mode']))
+    
+# --------------- 发送帮助信息 ---------------
+setuhelp = on_command("setuhelp",aliases={"setu帮助","色图help","色图帮助"},block=True, priority=10)
+@setuhelp.handle()
+async def _():
+    help_msg = """setu指令:
+    ^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?
+   
+    白名单管理：
+    setu_wl add  添加会话至白名单
+    setu_wl del  移出会话自白名单
+    
+    黑名单管理：    
+    setu_ban add  添加会话至黑名单
+    setu_ban del  移出会话自黑名单
+
+    r18模式管理：
+    setu_r18 on  开启会话的r18模式
+    setu_r18 off 关闭会话的r18模式
+
+    cd时间更新:
+    setu_cd xxx  更新会话的冷却时间, xxx为int类型的参数
+
+    撤回时间更新:
+    setu_wd xxx  撤回前等待的时间, xxx为int类型的参数
+
+    最大张数更新:
+    setu_mn xxx  单次发送的最大图片数, xxx为int类型的参数"""
+    await setuhelp.finish(help_msg)
+
 
 # --------------- 数据库更新 ---------------
 setuupdate = on_command('setu_db', permission=SUPERUSER, block=True, priority=10)
