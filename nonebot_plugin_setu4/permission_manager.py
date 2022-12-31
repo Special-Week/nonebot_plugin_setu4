@@ -1,12 +1,10 @@
 import os
-import random
 import time
+import random
+import nonebot
 from pathlib import Path
 from ast import literal_eval
-
-import nonebot
 from nonebot.log import logger
-
 from .resource.setu_message import setu_sendcd
 
 try:
@@ -14,7 +12,6 @@ try:
 except:
     logger.warning('ujson not find, import json instead')
     import json
-
 
 
 '''{
@@ -37,45 +34,49 @@ except:
 class PermissionManager:
     def __init__(self) -> None:
         # 读取全局变量
-        try: 
-            self.setu_perm_cfg_path  = str(Path(nonebot.get_driver().config.setu_perm_cfg_path,'setu_perm_cfg.json'))
+        try:
+            self.setu_perm_cfg_path = str(
+                Path(nonebot.get_driver().config.setu_perm_cfg_path, 'setu_perm_cfg.json'))
         except:
-            self.setu_perm_cfg_path  = 'data/setu4/setu_perm_cfg.json'
-        try: 
-            self.setu_cd             = int(nonebot.get_driver().config.setu_cd)
+            self.setu_perm_cfg_path = 'data/setu4/setu_perm_cfg.json'
+        try:
+            self.setu_cd = int(nonebot.get_driver().config.setu_cd)
         except:
-            self.setu_cd             = 30
-        try: 
-            self.setu_withdraw_time  = int(nonebot.get_driver().config.setu_withdraw_time) if int(nonebot.get_driver().config.setu_withdraw_time)<100 else 100
+            self.setu_cd = 30
+        try:
+            self.setu_withdraw_time = int(nonebot.get_driver().config.setu_withdraw_time) if int(
+                nonebot.get_driver().config.setu_withdraw_time) < 100 else 100
         except:
-            self.setu_withdraw_time  = 100
-        try: 
-            self.setu_max_num        = int(nonebot.get_driver().config.setu_max_num)
+            self.setu_withdraw_time = 100
+        try:
+            self.setu_max_num = int(nonebot.get_driver().config.setu_max_num)
         except:
-            self.setu_max_num        = 10
-        try: 
-            self.setu_enable_private = bool(literal_eval(nonebot.get_driver().config.setu_enable_private))
+            self.setu_max_num = 10
+        try:
+            self.setu_enable_private = bool(literal_eval(
+                nonebot.get_driver().config.setu_enable_private))
         except:
             self.setu_enable_private = False
         try:
-            self.setu_disable_wlist  = bool(literal_eval(nonebot.get_driver().config.setu_disable_wlist))
+            self.setu_disable_wlist = bool(literal_eval(
+                nonebot.get_driver().config.setu_disable_wlist))
         except:
-            self.setu_disable_wlist  = False
+            self.setu_disable_wlist = False
         # 规范全局变量的取值范围
-        self.setu_cd            = self.setu_cd            if self.setu_cd            > 0   else 0
-        self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time > 0   else 0
+        self.setu_cd = self.setu_cd if self.setu_cd > 0 else 0
+        self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time > 0 else 0
         self.setu_withdraw_time = self.setu_withdraw_time if self.setu_withdraw_time < 100 else 100
-        self.setu_max_num       = self.setu_max_num       if self.setu_max_num       > 1   else 1
-        self.setu_max_num       = self.setu_max_num       if self.setu_max_num       < 25  else 25
+        self.setu_max_num = self.setu_max_num if self.setu_max_num > 1 else 1
+        self.setu_max_num = self.setu_max_num if self.setu_max_num < 25 else 25
         # 读取perm_cfg
         self.ReadCfg()
 
     # --------------- 文件读写 开始 ---------------
     # 读取cfg
-    def ReadCfg(self)->dict:
+    def ReadCfg(self) -> dict:
         try:
             # 尝试读取
-            with open(self.setu_perm_cfg_path,'r',encoding='utf-8') as f:
+            with open(self.setu_perm_cfg_path, 'r', encoding='utf-8') as f:
                 self.cfg = json.loads(f.read())
             return self.cfg
         except Exception as e:
@@ -84,64 +85,64 @@ class PermissionManager:
             self.cfg = {}
             self.WriteCfg()
             return {}
-    
+
     # 写入cfg
     def WriteCfg(self):
         # 尝试创建路径
-        os.makedirs(self.setu_perm_cfg_path[:-18],mode=0o777,exist_ok=True)
+        os.makedirs(self.setu_perm_cfg_path[:-18], mode=0o777, exist_ok=True)
         # 写入数据
-        with open(self.setu_perm_cfg_path,'w',encoding='utf-8') as f:
+        with open(self.setu_perm_cfg_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.cfg))
     # --------------- 文件读写 开始 ---------------
-    
+
     # --------------- 查询系统 开始 ---------------
     # 查询上一次发送时间
-    def ReadLastSend(self,sessionId):
+    def ReadLastSend(self, sessionId):
         try:
             return self.cfg['last'][sessionId]
         except KeyError:
             return 0
 
     # 查询cd
-    def ReadCd(self,sessionId):
+    def ReadCd(self, sessionId):
         try:
             return self.cfg[sessionId]['cd']
         except KeyError:
             return self.setu_cd
-    
+
     # 查询撤回时间
-    def ReadWithdrawTime(self,sessionId):
+    def ReadWithdrawTime(self, sessionId):
         try:
             return self.cfg[sessionId]['withdraw']
         except KeyError:
             return self.setu_withdraw_time
 
     # 查询最大张数
-    def ReadMaxNum(self,sessionId):
+    def ReadMaxNum(self, sessionId):
         try:
             return self.cfg[sessionId]['maxnum']
         except KeyError:
             return self.setu_max_num
 
     # 查询r18
-    def ReadR18(self,sessionId):
+    def ReadR18(self, sessionId):
         try:
             return self.cfg[sessionId]['r18']
         except KeyError:
             return False
-    
+
     # 查询黑名单
-    def ReadBanList(self,sessionId):
+    def ReadBanList(self, sessionId):
         try:
             return sessionId in self.cfg['ban']
         except KeyError:
             return False
 
     # --------------- 查询系统 结束 ---------------
-    
+
     # --------------- 逻辑判断 开始 ---------------
     # 查询权限, 并返回修正过的参数
-    def CheckPermission(self,sessionId:str,r18flag:bool,num:int,userType:str='group'):
+    def CheckPermission(self, sessionId: str, r18flag: bool, num: int, userType: str = 'group'):
         logger.debug(f'-==- {sessionId} -===-\
             \ndisable_wlist  : {self.setu_disable_wlist}\
             \nenable_private : {self.setu_enable_private}\
@@ -167,19 +168,19 @@ class PermissionManager:
             raise PermissionError(f'涩图功能对 {sessionId} 禁用！')
         # 采用白名单检查
         # 如果白名单被禁用则跳过
-        if not self.setu_disable_wlist: 
+        if not self.setu_disable_wlist:
             # 如果没被禁用则开始检查
             if userType == 'group' or (
                (not self.setu_enable_private) and userType == 'private'
-            ):
-                # 如果会话本身未在名单中, 不启用功能        
+               ):
+                # 如果会话本身未在名单中, 不启用功能
                 if not sessionId in self.cfg.keys():
                     logger.warning(f'涩图功能在 {sessionId} 会话中未启用')
                     raise PermissionError('涩图功能在此会话中未启用！')
-        
-        
+
         # 查询冷却时间
-        timeLeft = self.ReadCd(sessionId) + self.ReadLastSend(sessionId) - time.time()
+        timeLeft = self.ReadCd(sessionId) + \
+            self.ReadLastSend(sessionId) - time.time()
         if timeLeft > 0:
             hours, minutes, seconds = 0, 0, 0
             if timeLeft >= 60:
@@ -189,28 +190,30 @@ class PermissionManager:
                 seconds = timeLeft
             cd_msg = f"{str(round(hours)) + '小时' if hours else ''}{str(round(minutes)) + '分钟' if minutes else ''}{str(round(seconds,3)) + '秒' if seconds else ''}"
             logger.warning(f'setu的cd还有{cd_msg}')
-            raise PermissionError(f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
-        
+            raise PermissionError(
+                f"{random.choice(setu_sendcd)} 你的CD还有{cd_msg}！")
+
         # 检查r18权限, 图片张数, 撤回时间
-        r18  = True if r18flag and self.ReadR18(sessionId) else False
-        num_ = num  if num  <=  self.ReadMaxNum(sessionId) else self.ReadMaxNum(sessionId)
+        r18 = True if r18flag and self.ReadR18(sessionId) else False
+        num_ = num if num <= self.ReadMaxNum(
+            sessionId) else self.ReadMaxNum(sessionId)
         return r18, num_, self.ReadWithdrawTime(sessionId)
     # --------------- 逻辑判断 结束 ---------------
 
     # --------------- 冷却更新 开始 ---------------
     # 最后一次发送的记录
-    def UpdateLastSend(self,sessionId):
+    def UpdateLastSend(self, sessionId):
         try:
             self.cfg['last'][sessionId] = time.time()
         except KeyError:
             self.cfg['last'] = {
-                sessionId : time.time()
+                sessionId: time.time()
             }
-    
+
     # --------------- 冷却更新 结束 ---------------
 
     # --------------- 增删系统 开始 ---------------
-    def UpdateWhiteList(self,sessionId:str,add_mode:bool):
+    def UpdateWhiteList(self, sessionId: str, add_mode: bool) -> str:
         # 白名单部分
         if add_mode:
             if sessionId in self.cfg.keys():
@@ -225,9 +228,9 @@ class PermissionManager:
                 self.WriteCfg()
                 return f'成功移除{sessionId}出白名单'
             return f'{sessionId}不在白名单'
-    
+
     # cd部分
-    def UpdateCd(self,sessionId:str,cdTime:int):
+    def UpdateCd(self, sessionId: str, cdTime: int) -> str:
         # 检查是否已在白名单, 不在则结束
         if not sessionId in self.cfg.keys():
             return f'{sessionId}不在白名单, 请先添加至白名单后操作'
@@ -243,14 +246,14 @@ class PermissionManager:
         self.WriteCfg()
         # 返回信息
         return f'成功更新冷却时间 {cdTime_old} -> {cdTime}'
-    
+
     # 撤回时间部分
-    def UpdateWithdrawTime(self,sessionId:str,withdrawTime:int):
+    def UpdateWithdrawTime(self, sessionId: str, withdrawTime: int) -> str:
         # 检查是否已在白名单, 不在则结束
         if not sessionId in self.cfg.keys():
             return f'{sessionId}不在白名单, 请先添加至白名单后操作'
         # 检查数据是否超出范围，超出则设定至范围内
-        withdrawTime = withdrawTime if withdrawTime > 0   else 0
+        withdrawTime = withdrawTime if withdrawTime > 0 else 0
         withdrawTime = withdrawTime if withdrawTime < 100 else 100
         # 读取原有数据
         try:
@@ -262,14 +265,14 @@ class PermissionManager:
         self.WriteCfg()
         # 返回信息
         return f'成功更新撤回时间 {withdrawTime_old} -> {withdrawTime}'
-    
+
     # 最大张数部分
-    def UpdateMaxNum(self,sessionId:str,maxNum:int):
+    def UpdateMaxNum(self, sessionId: str, maxNum: int) -> str:
         # 检查是否已在白名单, 不在则结束
         if not sessionId in self.cfg.keys():
             return f'{sessionId}不在白名单, 请先添加至白名单后操作'
         # 检查数据是否超出范围，超出则设定至范围内
-        maxNum = maxNum if maxNum > 1  else 1
+        maxNum = maxNum if maxNum > 1 else 1
         maxNum = maxNum if maxNum < 25 else 25
         # 读取原有数据
         try:
@@ -281,9 +284,9 @@ class PermissionManager:
         self.WriteCfg()
         # 返回信息
         return f'成功更新最大张数 {maxNum_old} -> {maxNum}'
-    
+
     # r18部分
-    def UpdateR18(self,sessionId:str,r18Mode:bool):
+    def UpdateR18(self, sessionId: str, r18Mode: bool) -> str:
         # 检查是否已在白名单, 不在则结束
         if not sessionId in self.cfg.keys():
             return f'{sessionId}不在白名单, 请先添加至白名单后操作'
@@ -300,8 +303,8 @@ class PermissionManager:
                 self.WriteCfg()
                 return f'成功关闭{sessionId}的r18权限'
             return f'{sessionId}未开启r18'
-    
-    def UpdateBanList(self,sessionId:str,add_mode:bool):
+
+    def UpdateBanList(self, sessionId: str, add_mode: bool) -> str:
         # 加入黑名单
         if add_mode:
             try:

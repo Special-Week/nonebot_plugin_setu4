@@ -1,14 +1,15 @@
 import os
+import nonebot
 from pathlib import Path
 from httpx import AsyncClient
-import nonebot
 from nonebot.log import logger
 
 # github_proxy, 可在env设置, 数据库的存放地址
 try:
-    database_path = nonebot.get_driver().config.database_path
+    database_path: str = nonebot.get_driver().config.database_path
 except:
-    database_path = 'https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db'
+    database_path: str = 'https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db'
+
 
 # 下载数据库并返回content
 async def DownloadDatabase():
@@ -29,7 +30,7 @@ async def DownloadDatabase():
 
 
 # 下载图片并且返回content,或者status_code
-async def DownloadPic(url, client):
+async def DownloadPic(url: str, client: AsyncClient):
     try:
         headers = {
             "Referer": "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=wwwtop_accounts_index",
