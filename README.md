@@ -6,7 +6,7 @@
 
 github仓库内顺便加了个一次性下载数据库内所有图片的脚本, 有需要可以看一下, 文件夹download_image内, 请勿团体大规模爬取, 造成代理服务器不可用
 
-### 目前数据库共68998条记录
+### 目前数据库共70359条记录
 
 安装方式:
 
@@ -44,15 +44,15 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进�
 一般无需科学上网, 确认一下图片代理是否可用:   
 
     一些也许可用的pixiv代理, 用来填入env的setu_proxy变量: "i.pixiv.re" , "sex.nyan.xyz" , "px2.rainchan.win" 
-
+    
     Example:
-
+    
         数据库给的url为: https://i.pixiv.re/img-original/img/2022/07/09/18/51/03/99606781_p0.jpg
-
+    
         有些代理可能会暂时不可用, 可以用来换成可用的代理, 比如px2.rainchan.win
-
+    
         即: https://px2.rainchan.win/img-original/img/2022/07/09/18/51/03/99606781_p0.jpg
-
+    
         能正常访问即可用
 
 ## 权限控制系统
@@ -123,7 +123,7 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进�
 
     setu_wl add  添加会话至白名单
     setu_wl del  移出会话自白名单
-    
+
 黑名单管理：
 
     setu_ban add  添加会话至黑名单
@@ -145,15 +145,16 @@ cd时间更新:
 最大张数更新:
 
     setu_mn xxx  单次发送的最大图片数, xxx 为 int 类型的参数
-    
-    
+
+
+​    
 
 ## 其他指令
 
 获取插件帮助信息:
 
     "setu_help" | "setu_帮助" | "色图_help" | "色图_帮助"
-    
+
 查询黑白名单:
 
     "setu_roste" | "色图名单"
