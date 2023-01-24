@@ -94,6 +94,10 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
         if type(content) == int:
             logger.error(f"图片下载失败, 状态码: {content}")
             return [error, f"图片下载失败, 状态码: {content}", False, setu_url]
+    # 错误处理, 如果content是空bytes, 那么Image.open会报错, 跳到except, 直到change_pixel成功了, 图片应该不成问题, 可以进行保存, 并且返回pic信息
+    try:
+        image = Image.open(BytesIO(content))
+        pic = await change_pixel(image, quality)
         # 如果有本地保存路径则存储
         if save_path:
             file_name = setu_url.split("/")[-1]
@@ -103,9 +107,6 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
                 all_file_name.append(file_name)
             except Exception as e:
                 logger.error(f'图片存储失败: {e}')
-        image = Image.open(BytesIO(content))
-    try:
-        pic = await change_pixel(image, quality)
         return [pic, data, True, setu_url]
     except:
         return [error, f"图片处理失败", False, setu_url]
