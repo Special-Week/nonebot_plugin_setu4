@@ -82,7 +82,8 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
     file_name = setu_url.split("/")[-1]
 
     # 判断文件是否本地存在
-    if file_name in all_file_name:
+    isInAllFileName = file_name in all_file_name
+    if isInAllFileName:
         logger.info("图片本地存在")
         image = Image.open(save_path + "/" + file_name)
     # 如果没有就下载
@@ -99,8 +100,7 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
         image = Image.open(BytesIO(content))
         pic = await change_pixel(image, quality)
         # 如果有本地保存路径则存储
-        if save_path:
-            file_name = setu_url.split("/")[-1]
+        if save_path and not isInAllFileName:
             try:
                 with open(f"{save_path}/{file_name}", "wb") as f:
                     f.write(content)
