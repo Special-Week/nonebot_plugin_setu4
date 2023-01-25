@@ -3,6 +3,7 @@ import time
 import random
 import asyncio
 import nonebot
+import platform
 from re import I, sub
 from nonebot.log import logger
 from nonebot.typing import T_State
@@ -440,11 +441,22 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
         matcher.set_arg("proxy", arg)
 
 
-@replaceProxy.got("proxy", prompt=f"请输入你要替换的proxy, 当前proxy为:{pm.ReadProxy()}\ntips: 一些也许可用的proxy\ni.pixiv.re\nsex.nyan.xyz\npx2.rainchan.win\npximg.moonchan.xyz\npiv.deception.world\npx3.rainchan.win\npx.s.rainchan.win\npixiv.yuki.sh\npixiv.kagarise.workers.dev\n等等....")
+@replaceProxy.got("proxy", prompt=f"请输入你要替换的proxy, 当前proxy为:{pm.ReadProxy()}\ntips: 一些也许可用的proxy\ni.pixiv.re\nsex.nyan.xyz\npx2.rainchan.win\npximg.moonchan.xyz\npiv.deception.world\npx3.rainchan.win\npx.s.rainchan.win\npixiv.yuki.sh\npixiv.kagarise.workers.dev\npixiv.a-f.workers.dev\n等等....\n\neg:px2.rainchan.win\n警告:不要尝试命令行注入其他花里胡哨的东西, 可能会损伤你的电脑")
 async def _(proxy: str = ArgPlainText("proxy")):
     setu_proxy = proxy.strip()
     pm.UpdateProxy(setu_proxy)
     proxy_dict.update({'proxy': setu_proxy})
     await replaceProxy.send(f"{proxy}已经替换, 正在尝试ping操作验证连通性")
-    result = os.popen(f"ping {setu_proxy}").read()
+    # 警告: 这部分带了一个ping代理服务器的操作, 这个响应器是superuser only, 用了os.popen().read()操作, 请不要尝试给自己电脑注入指令
+    # 不会真的有弱智会这么做吧
+    plat = platform.system().lower()
+    if plat == 'windows':
+        result = os.popen(f"ping {setu_proxy}").read()
+    elif plat == 'linux':
+        result = os.popen(f"ping -c 4 {setu_proxy}").read()
     await replaceProxy.send(f"{result}\n如果丢失的数据比较多, 请考虑重新更换代理")
+
+
+# bot主人自己搞自己命令行注入管我卵事, 摆!
+def url_is_vaild(url: str):
+    ...
