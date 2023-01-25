@@ -21,8 +21,12 @@ except:
     all_file_name: list = []
 try:
     setu_proxy: str = nonebot.get_driver().config.setu_proxy
+    setu_proxy_1: str = nonebot.get_driver().config.setu_proxy
+    setu_proxy_2: str = nonebot.get_driver().config.setu_proxy
 except:
-    setu_proxy: str = 'i.pixiv.re'
+    setu_proxy: str = 'i.pixiv.re'              # 首选
+    setu_proxy_1: str = 'sex.nyan.xyz'          # 备用
+    setu_proxy_2: str = 'px2.rainchan.win'      # 备用
 
 
 # 返回列表,内容为setu消息(列表套娃)
@@ -66,8 +70,8 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
     setu_author = setu[2]                # 作者
     setu_r18 = setu[3]                   # r18
     setu_tags = setu[4]                  # 标签
-    setu_url = setu[5].replace('i.pixiv.re', setu_proxy)     # 图片url
-
+    setu_url = setu[5].replace('i.pixiv.re', setu_proxy)    # 图片url
+    
     data = (
         "标题:"
         + setu_title
@@ -88,11 +92,23 @@ async def pic(setu: list, quality: int, client: AsyncClient) -> list:
         image = Image.open(save_path + "/" + file_name)
     # 如果没有就下载
     else:
-        logger.info(f"图片本地不存在,正在去{setu_proxy}下载")
+        # 获取图片，进行第 1/3 次尝试
+        logger.info(f"图片本地不存在,正在去{setu_proxy}下载, 第 1/3 次尝试")
         content = await DownloadPic(setu_url, client)
+        # 如果报错，进行第 2/3 次尝试
         if type(content) == int:
-            logger.error(f"图片下载失败, 状态码: {content}")
-            return [error, f"图片下载失败, 状态码: {content}", False, setu_url]
+            setu_url = setu[5].replace('i.pixiv.re', setu_proxy_1)
+            logger.error(f"图片下载失败, 状态码: {content}, 将自动切换代理{setu_proxy_1}并重试, 第 2/3 次尝试")
+            content = await DownloadPic(setu_url, client)
+            # 如果报错，进行第 3/3 次尝试
+            if type(content) == int:
+                setu_url = setu[5].replace('i.pixiv.re', setu_proxy_2)
+                logger.error(f"图片下载失败, 状态码: {content}, 将自动切换代理{setu_proxy_2}并重试, 第 3/3 次尝试")
+                content = await DownloadPic(setu_url, client)
+                # 如果报错，则返回报错信息 >_<
+                if type(content) == int:
+                    logger.error(f"图片下载失败, 状态码: {content}")
+                    return [error, f"图片下载失败, 状态码: {content}", False, setu_url]
         # 错误处理, 如果content是空bytes, 那么Image.open会报错, 跳到except, 直到change_pixel成功了, 图片应该不成问题,
         try:
             image = Image.open(BytesIO(content))

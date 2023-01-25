@@ -143,7 +143,7 @@ class PermissionManager:
     # --------------- 逻辑判断 开始 ---------------
     # 查询权限, 并返回修正过的参数
     def CheckPermission(self, sessionId: str, r18flag: bool, num: int, userType: str = 'group'):
-        logger.debug(f'-==- {sessionId} -===-\
+        logger.debug(f'-===- {sessionId} -===-\
             \ndisable_wlist  : {self.setu_disable_wlist}\
             \nenable_private : {self.setu_enable_private}\
             \nuserType       : {userType}')

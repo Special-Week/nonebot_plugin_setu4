@@ -20,18 +20,20 @@ github仓库内顺便加了个一次性下载数据库内所有图片的脚本, 
 
 >以下配置项均可不填，插件会按照默认值读取
 
-|config             |type            |default    |example                                  |usage                                   |
-|-------------------|----------------|-----------|-----------------------------------------|----------------------------------------|
-|setu_disable_wlist |bool            |False      |setu_disable_wlist  = True               |是否禁用白名单检查(极度不推荐禁用)(详见权限控制系统)|
-|setu_enable_private|bool            |False      |setu_enable_private = True               |是否允许未在白名单的私聊会话使用(详见权限控制系统)  |
-|setu_perm_cfg_path |str             |see example|setu_perm_cfg_path = './data/setu4'      |会话(群号或QQ号)启用、r18及其他独立配置项  |
-|setu_save          |str             |None       |setu_save = './data/setu4/img'           |setu保存到本地的路径, 留空则不保存至本地   |
-|setu_regex         |str             |see example|setu_save = see description[^1]          |setu插件的正则表达式匹配                  |
-|setu_database_path |str             |see example|setu_database_path = see description[^2] |更新使用的数据库的地址, 默认为此项目的resource文件夹下|
-|setu_cd*           |int             |20         |setu_cd = 30                             |setu默认cd[0,+∞], 为0时无cd              |
-|setu_withdraw_time*|int             |100        |setu_withdraw_time = 30                  |setu默认撤回时间[0,100], 为0时不撤回      |
-|setu_max_num*      |int             |10         |setu_max_num = 20                        |setu默认一次性最大数量[1,25]              |
-|setu_proxy         |str             |i.pixiv.re |setu_proxy = "i.pixiv.re"                |下载图片的代理(一般我会把可用的代理设置成默认|
+|config             |type            |default         |example                                 |usage                                   |
+|-------------------|----------------|----------------|----------------------------------------|----------------------------------------|
+|setu_disable_wlist |bool            |False           |setu_disable_wlist  = True              |是否禁用白名单检查(极度不推荐禁用)(详见权限控制系统)|
+|setu_enable_private|bool            |False           |setu_enable_private = True              |是否允许未在白名单的私聊会话使用(详见权限控制系统)  |
+|setu_perm_cfg_path |str             |see example     |setu_perm_cfg_path = './data/setu4'     |会话(群号或QQ号)启用、r18及其他独立配置项  |
+|setu_save          |str             |None            |setu_save = './data/setu4/img'          |setu保存到本地的路径, 留空则不保存至本地   |
+|setu_regex         |str             |see example     |setu_save = see description[^1]         |setu插件的正则表达式匹配                  |
+|setu_database_path |str             |see example     |setu_database_path = see description[^2]|更新使用的数据库的地址, 默认为此项目的resource文件夹下|
+|setu_cd*           |int             |20              |setu_cd = 30                            |setu默认cd[0,+∞], 为0时无cd              |
+|setu_withdraw_time*|int             |100             |setu_withdraw_time = 30                 |setu默认撤回时间[0,100], 为0时不撤回      |
+|setu_max_num*      |int             |10              |setu_max_num = 20                       |setu默认一次性最大数量[1,25]              |
+|setu_proxy         |str             |i.pixiv.re      |setu_proxy = "i.pixiv.re"               |下载图片的首选代理(可用的代理会被设置成默认)(出错会自动重试)|
+|setu_proxy_1       |str             |sex.nyan.xyz    |setu_proxy_1 = "sex.nyan.xyz"           |备选代理1(可手动调整三个代理的顺序以直接避开错误减少等待时间)|
+|setu_proxy_2       |str             |px2.rainchan.win|setu_proxy_1 = "px2.rainchan.win"       |备选代理2(作用同上)                       |
 
 >带有*标识的设置项可在指定群聊被setu_perm_cfg.json中的内容覆盖
 
