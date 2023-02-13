@@ -39,7 +39,7 @@ async def main():
     conn = sqlite3.connect('lolicon.db')                                        # 连接sqlite数据库文件, 同一级目录下的lolicon.db文件, 请从上面的注释处下载
     cur = conn.cursor()
     logger.info('数据库连接成功')
-    cursor = cur.execute("SELECT urls from main")                               # sql提取所有链接
+    cursor = cur.execute("SELECT urls from main where status!='unavailable'")                               # sql提取所有链接
     cursor = cursor.fetchall()
     random.shuffle(cursor)                                                      # 无意义的打乱
     task_list = []                                                              # 任务列表

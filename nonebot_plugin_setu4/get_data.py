@@ -33,15 +33,15 @@ async def get_setu(keywords: list = [], r18: bool = False, num: int = 1, quality
     cur = conn.cursor()
     # sql操作,根据keyword和r18进行查询拿到数据
     if keywords == []:   # 如果传入的keywords是空列表, 那么where只限定r18='{r18}'
-        sql = f"SELECT pid,title,author,r18,tags,urls from main where r18='{r18}' order by random() limit {num}"
+        sql = f"SELECT pid,title,author,r18,tags,urls from main where r18='{r18}' and status!='unavailable' order by random() limit {num}"
     # 如果keywords列表只有一个, 那么从tags, title, author找有内容是keywords[0]的
     elif len(keywords) == 1:
-        sql = f"SELECT pid,title,author,r18,tags,urls from main where (tags like '%{keywords[0]}%' or title like '%{keywords[0]}%' or author like '%{keywords[0]}%') and r18='{r18}' order by random() limit {num}"
+        sql = f"SELECT pid,title,author,r18,tags,urls from main where (tags like '%{keywords[0]}%' or title like '%{keywords[0]}%' or author like '%{keywords[0]}%') and r18='{r18}' and status!='unavailable' order by random() limit {num}"
     else:                   # 多tag的情况下的sql语句
         tagSql = ""
         for i in keywords:
             tagSql += f"tags like '%{i}%'" if i == keywords[-1] else f"tags like '%{i}%' and "
-        sql = f"SELECT pid,title,author,r18,tags,urls from main where (({tagSql}) and r18='{r18}') order by random() limit {num}"
+        sql = f"SELECT pid,title,author,r18,tags,urls from main where (({tagSql}) and r18='{r18}' and status!='unavailable') order by random() limit {num}"
     cursor = cur.execute(sql)
     db_data = cursor.fetchall()
     # 断开数据库连接
@@ -78,24 +78,26 @@ async def pic(setu: list, quality: int, client: AsyncClient, setu_proxy: str) ->
     )
 
     logger.info("\n"+data+"\ntags:" +
-                setu_tags+"\nR18:"+setu_r18)
-    file_name = setu_url.split("/")[-1]
+                setu_tags+"\nR18:"+setu_r18)    # 打印信息
+    file_name = setu_url.split("/")[-1] # 获取文件名
 
     # 判断文件是否本地存在
     isInAllFileName = file_name in all_file_name
     if isInAllFileName:
         logger.info("图片本地存在")
-        image = Image.open(save_path + "/" + file_name)
+        image = Image.open(save_path + "/" + file_name) # 打开图片
     # 如果没有就下载
     else:
         logger.info(f"图片本地不存在,正在去{setu_proxy}下载")
         content = await DownloadPic(setu_url, client)
-        if type(content) == int:
-            logger.error(f"图片下载失败, 状态码: {content}")
+        if type(content) == int:            # 如果返回的是int, 那么就是状态码, 表示下载失败
+            if content == 404:              # 如果是404, 404表示文件不存在, 说明作者删除了图片, 那么就把这个url的status改为unavailable, 下次sql操作的时候就不会再拿到这个url了
+                await update_status_unavailable(setu[5])  # setu[5]是原始url, 不能拿换过代理的url
+            logger.error(f"图片下载失败, 状态码: {content}")                    # 返回错误信息
             return [error, f"图片下载失败, 状态码: {content}", False, setu_url]
         # 错误处理, 如果content是空bytes, 那么Image.open会报错, 跳到except, 如果能打开图片, 图片应该不成问题,
         try:
-            image = Image.open(BytesIO(content))
+            image = Image.open(BytesIO(content))    # 打开图片
         except Exception as e:
             return [error, f"图片打开失败, 错误信息: {e}", False, setu_url]
         # 保存图片, 如果save_path不为空, 以及图片不在all_file_name中, 那么就保存图片
@@ -124,3 +126,15 @@ async def change_pixel(image: Image, quality: int) -> bytes:
     # pic是的图片的bytes
     pic = byte_data.getvalue()
     return pic
+
+
+# 更新数据库中的图片状态为unavailable
+async def update_status_unavailable(urls: str) -> None:
+    # 连接数据库
+    conn = sqlite3.connect(
+        Path(os.path.join(os.path.dirname(__file__), "resource")) / "lolicon.db")   
+    cur = conn.cursor()
+    sql = f"UPDATE main set status='unavailable' where urls='{urls}'"   # 手搓sql语句
+    cur.execute(sql)                    #执行
+    conn.commit()                   # 提交事务
+    conn.close()                    # 关闭连接
