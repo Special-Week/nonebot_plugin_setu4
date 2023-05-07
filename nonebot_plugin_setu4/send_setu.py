@@ -51,6 +51,7 @@ class SendSetu:
         event: MessageEvent,
         state: T_State,
     ) -> None:  # sourcery skip: low-code-quality
+        """发送色图的处理函数"""
         # 获取用户输入的参数
         args = list(state["_matched_groups"])
         r18flag = args[2]

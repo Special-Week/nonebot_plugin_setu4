@@ -14,7 +14,7 @@ if not DATA_PATH.exists() or not DATA_PATH.is_dir():
 class Config(BaseSettings):
     setu_disable_wlist: bool =  False       # 是否禁用白名单检查
     setu_enable_private: bool = False       # 是否允许未在白名单的私聊会话使用
-    setu_save: Union[bool, str] = False     # 保存图片的路径, 默认False, 填.env时候希望收到的是字符串
+    setu_save: Union[bool, str] = False     # 保存图片的路径, 默认False, 填.env时候希望收到的是字符串而不是True
     # 数据库路径, 默认使用github的地址
     database_path: str = 'https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db'
 
@@ -31,10 +31,10 @@ config = Config.parse_obj(get_driver().config)
 
 
 # 规范取值范围
-config.setu_cd = max(0, config.setu_cd)
-config.setu_withdraw_time = max(0, config.setu_withdraw_time)
+config.setu_cd = max(0, config.setu_cd)  # setu_cd不能小于0
+config.setu_withdraw_time = max(0, config.setu_withdraw_time) # 撤回时间不能小于0, 大于100
 config.setu_withdraw_time = min(100, config.setu_withdraw_time)
-config.setu_max_num = max(1, config.setu_max_num)
+config.setu_max_num = max(1, config.setu_max_num)           # setu_max_num不能大于1小于25
 config.setu_max_num = min(25, config.setu_max_num)
 
 if type(config.setu_save) == str:

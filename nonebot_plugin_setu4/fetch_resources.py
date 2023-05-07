@@ -26,7 +26,7 @@ async def download_database() -> str:
 
 
 async def download_pic(url: str, client: AsyncClient) -> Union[bytes, int]:
-    "下载图片并且返回content,或者status_code"
+    "下载图片并且返回content(bytes),或者status_code"
     try:
         re = await client.get(url=url, timeout=120)
         if re.status_code != 200:

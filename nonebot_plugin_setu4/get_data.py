@@ -34,7 +34,7 @@ class GetData:
         quality: int
     ) -> bytes:
         """图像镜像左右翻转, 并且随机修改左上角一个像素点"""
-        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        image = image.transpose(Image.FLIP_LEFT_RIGHT)  
         image = image.convert("RGB")
         image.load()[0, 0] = (random.randint(0, 255),
                             random.randint(0, 255), random.randint(0, 255))
@@ -114,8 +114,8 @@ class GetData:
         setu_title = setu[1]                 # 标题
         setu_author = setu[2]                # 作者
         setu_r18 = setu[3]                   # r18
-        setu_tags = setu[4]                  # 标签
-        setu_url = setu[5].replace('i.pixiv.re', setu_proxy)     # 图片url
+        setu_tags: str = setu[4]                  # 标签
+        setu_url: str = setu[5].replace('i.pixiv.re', setu_proxy)     # 图片url
 
         data = (
             "标题:"
@@ -134,7 +134,10 @@ class GetData:
         is_in_all_file_name = file_name in self.all_file_name
         if is_in_all_file_name:
             logger.info("图片本地存在")
-            image = Image.open(f"{self.save_path}/{file_name}") # 打开图片
+            try:
+                image = Image.open(f"{self.save_path}/{file_name}") # 尝试打开图片
+            except Exception as e:
+                return ["Error", f"本地图片打开失败, 错误信息: {e}\nfile_name:{file_name}", False, setu_url]
         else:
             logger.info(f"图片本地不存在,正在去{setu_proxy}下载")
             content: Union[bytes, int] = await download_pic(setu_url, client)
@@ -157,6 +160,7 @@ class GetData:
                 except Exception as e:
                     logger.error(f'图片存储失败: {e}')
         try:
+            # 尝试修改图片
             pic = await self.change_pixel(image, quality)
             return [pic, data, True, setu_url]
         except Exception as e:

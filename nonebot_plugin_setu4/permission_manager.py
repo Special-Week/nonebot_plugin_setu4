@@ -36,6 +36,7 @@ class PermissionManager:
         self.setu_disable_wlist = config.setu_disable_wlist
         self.setu_enable_private = config.setu_enable_private
         self.read_cfg()
+        
 
     def read_cfg(self) -> dict:
         """读取配置文件"""
@@ -50,6 +51,7 @@ class PermissionManager:
             self.write_cfg()
         return self.cfg
         
+
     def write_cfg(self):
         """写入配置文件"""
         with open(self.setu_perm_cfg_filepath, 'w', encoding='utf-8') as f:
@@ -211,7 +213,6 @@ class PermissionManager:
         return f'成功更新冷却时间 {cd_time_old} -> {cd_time}'
     
 
-
     def update_withdraw_time(self, session_id: str, withdraw_time: int) -> str:
         """更新撤回时间"""
         # 检查是否已在白名单, 不在则结束
@@ -250,7 +251,6 @@ class PermissionManager:
         self.write_cfg()
         # 返回信息
         return f'成功更新最大张数 {max_num_old} -> {max_num}'
-    
 
 
     def update_r18(self, session_id: str, r18_mode: bool) -> str:
@@ -273,6 +273,7 @@ class PermissionManager:
                 return f'成功关闭{session_id}的r18权限'
             return f'{session_id}未开启r18'
         
+
     def update_ban_list(self, session_id: str, add_mode: bool) -> str:
         """更新黑名单"""
         if add_mode:
@@ -293,11 +294,13 @@ class PermissionManager:
             except ValueError:
                 return f'{session_id}不在黑名单'
             
+
     def update_proxy(self, proxy: str) -> None:
         """更新代理"""
         self.cfg['proxy'] = proxy
         self.write_cfg()
     
+
     def read_proxy(self) -> str:
         """查询代理"""
         try:

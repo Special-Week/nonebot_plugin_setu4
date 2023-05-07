@@ -12,8 +12,11 @@ from .setu_message import HELP_MSG
 
 
 class ManagerHandle:
+    """
+    这个类里面是一大堆setu其他指令的handle函数
+    """
     def __init__(self) -> None:
-        """不知道写啥"""
+        """好像没啥要初始化的"""
         ...
 
 
