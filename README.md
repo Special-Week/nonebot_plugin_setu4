@@ -121,30 +121,30 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进�
 
 白名单管理：
 
-    setu_wl add  添加会话至白名单
-    setu_wl del  移出会话自白名单
+    setu_wl add  添加会话至白名单 eg: setu_wl add user_114514/group_1919810
+    setu_wl del  移出会话自白名单 eg: setu_wl del user_114514/group_1919810
 
 黑名单管理：
 
-    setu_ban add  添加会话至黑名单
-    setu_ban del  移出会话自黑名单
+    setu_ban add  添加会话至黑名单 eg: setu_ban add user_114514/group_1919810
+    setu_ban del  移出会话自黑名单 eg: setu_ban del user_114514/group_1919810
 
 r18模式管理：
 
-    setu_r18 on  开启会话的r18模式
-    setu_r18 off 关闭会话的r18模式
+    setu_r18 on  开启会话的r18模式 eg: setu_r18 on group_1919810
+    setu_r18 off 关闭会话的r18模式 eg: setu_r18 off group_1919810
 
 cd时间更新:
 
-    setu_cd xxx  更新会话的冷却时间, xxx 为 int 类型的参数
+    setu_cd xxx  更新会话的冷却时间, xxx为int类型的参数 eg: setu_cd 10 group_1919810
 
 撤回时间更新:
 
-    setu_wd xxx  撤回前等待的时间, xxx 为 int 类型的参数
+    setu_wd xxx  撤回前等待的时间, xxx为int类型的参数 eg: setu_wd 10 group_1919810
 
 最大张数更新:
 
-    setu_mn xxx  单次发送的最大图片数, xxx 为 int 类型的参数
+    setu_mn xxx  单次发送的最大图片数, xxx为int类型的参数   eg: setu_mn 10 group_1919810
 
 更换setu代理服务器:
 
@@ -164,7 +164,7 @@ cd时间更新:
     "setu_roste" | "色图名单"
 
 
-数据库更新(未完工):
+数据库更新:
 >此指令默认从 github.com[^2] 拉取数据库，如果无法访问可以考虑使用科学上网或更换镜像或者手动从仓库下载换上去。
 
     setu_db      从指定的路径拉取 lolicon.db 数据库，默认为此仓库
