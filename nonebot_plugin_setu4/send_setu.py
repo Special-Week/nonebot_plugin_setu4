@@ -3,6 +3,7 @@ import contextlib
 import random
 import time
 from re import sub
+from typing import Tuple
 
 import nonebot
 from nonebot.adapters.onebot.v11 import (Bot, GroupMessageEvent, Message,
@@ -11,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (Bot, GroupMessageEvent, Message,
 from nonebot.exception import ActionFailed
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.typing import T_State
+from nonebot.params import RegexGroup
 
 from .get_data import get_data
 from .permission_manager import pm
@@ -49,11 +50,10 @@ class SendSetu:
         bot: Bot,
         matcher: Matcher,
         event: MessageEvent,
-        state: T_State,
+        args: Tuple = RegexGroup()
     ) -> None:  # sourcery skip: low-code-quality
         """发送色图的处理函数"""
         # 获取用户输入的参数
-        args = list(state["_matched_groups"])
         r18flag = args[2]
         key = sub('[\'\"]', '', args[3])  # 去掉引号防止sql注入
         num = int(sub(r"[张|个|份|x|✖️|×|X|*]", "", args[1])) if args[1] else 1
