@@ -39,7 +39,7 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进�
 
 一般无需科学上网, 但希望你确认一下图片代理是否可用:   
 
-    一些也许可用的pixiv代理: "i.pixiv.re" , "sex.nyan.xyz" , "px2.rainchan.win" , "pximg.moonchan.xyz" , "piv.deception.world" , "px3.rainchan.win" , "px.s.rainchan.win" , "pixiv.yuki.sh" , "pixiv.kagarise.workers.dev" , "pixiv.kagarise.workers.dev"
+    一些也许可用的pixiv代理: "setu.woshishaluan.top", "i.pixiv.re" , "sex.nyan.xyz" , "px2.rainchan.win" , "pximg.moonchan.xyz" , "piv.deception.world" , "px3.rainchan.win" , "px.s.rainchan.win" , "pixiv.yuki.sh" , "pixiv.kagarise.workers.dev" , "pixiv.kagarise.workers.dev"
     
     使用插件提供的on_command响应器进行更换(on_command响应器注意.env内的命令头, 默认的代理为i.pixiv.re)  
     使用superuser账号发送: setu_proxy xxx      Example: setu_proxy i.pixiv.re
@@ -48,9 +48,9 @@ setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进�
     Example: 
         数据库给的url为: https://i.pixiv.re/img-original/img/2022/07/09/18/51/03/99606781_p0.jpg
     
-        有些代理可能会暂时不可用, 可以用来换成可用的代理, 比如px2.rainchan.win
+        有些代理可能会暂时不可用, 可以用来换成可用的代理, 比如setu.woshishaluan.top
     
-        即: https://px2.rainchan.win/img-original/img/2022/07/09/18/51/03/99606781_p0.jpg
+        即: https://setu.woshishaluan.top/img-original/img/2022/07/09/18/51/03/99606781_p0.jpg
     
         能正常访问即可用
 
