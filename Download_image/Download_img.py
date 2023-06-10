@@ -27,7 +27,7 @@ class DownloadImg:
     async def main(self) -> None:
         """主函数, 发起下载任务"""
         task_list = []
-        sem = asyncio.Semaphore(50)
+        sem = asyncio.Semaphore(30)
         for item in self.data:
             url: str  = item[0]
             file_name = url.split('/')[-1]
@@ -39,6 +39,7 @@ class DownloadImg:
 
     async def start_download(self, url: str, file_name: str,sem: asyncio.Semaphore):
         """下载图片"""
+        url = url.replace('i.pixiv.cat', 'setu.woshishaluan.top') # 反代地址
         async with sem:
             try:
                 async with AsyncClient() as client:

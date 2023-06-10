@@ -242,7 +242,7 @@ class ManagerHandle:
         """有参数的情况"""
         msg = arg.extract_plain_text().strip()  # 获取消息文本
         if not msg or msg.isspace():
-            await matcher.pause(f"请输入你要替换的proxy, 当前proxy为:{pm.read_proxy()}\ntips: 一些也许可用的proxy\ni.pixiv.re\nsex.nyan.xyz\npx2.rainchan.win\npximg.moonchan.xyz\npiv.deception.world\npx3.rainchan.win\npx.s.rainchan.win\npixiv.yuki.sh\npixiv.kagarise.workers.dev\npixiv.a-f.workers.dev\n等等....\n\neg:px2.rainchan.win\n警告:不要尝试命令行注入其他花里胡哨的东西, 可能会损伤你的电脑")
+            await matcher.pause(f"请输入你要替换的proxy, 当前proxy为:{pm.read_proxy()}\ntips: 一些也许可用的proxy\ni.pixiv.re\nsex.nyan.xyz\npx2.rainchan.win\npximg.moonchan.xyz\npiv.deception.world\npx3.rainchan.win\npx.s.rainchan.win\npixiv.yuki.sh\npixiv.kagarise.workers.dev\nsetu.woshishaluan.top\npixiv.a-f.workers.dev\n等等....\n\neg:px2.rainchan.win\n警告:不要尝试命令行注入其他花里胡哨的东西, 可能会损伤你的电脑")
         else:
             await matcher.send(f"{msg}已经替换, 正在尝试ping操作验证连通性") # 发送消息
             result = await self.set_proxy(msg)
