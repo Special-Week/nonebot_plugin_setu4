@@ -12,7 +12,7 @@ from loguru import logger
 class DownloadImg:
     def __init__(self) -> None:
         """初始化数据库连接, 创建img文件夹, 初始化数据"""
-        self.cur = sqlite3.connect('setu_data.db').cursor()
+        self.cur = sqlite3.connect('lolicon.db').cursor()
         logger.info('数据库连接成功')
         try:
             logger.info('创建img文件夹')
@@ -39,7 +39,7 @@ class DownloadImg:
 
     async def start_download(self, url: str, file_name: str,sem: asyncio.Semaphore):
         """下载图片"""
-        url = url.replace('i.pixiv.cat', 'setu.woshishaluan.top') # 反代地址
+        url = url.replace('i.pixiv.re', 'setu.woshishaluan.top') # 反代地址
         async with sem:
             try:
                 async with AsyncClient() as client:
