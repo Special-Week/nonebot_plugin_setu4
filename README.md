@@ -4,7 +4,7 @@
 
 不喜欢繁杂的权限控制这里推荐[青春版](https://github.com/Special-Week/youth-version-of-setu4), 简化了很多设置, 群聊私聊全开, 只有必要的权限控制, 相比完整版功能精简
 
-github仓库内顺便加了个一次性下载数据库内所有图片的脚本, 有需要可以看一下, 文件夹download_image内, 请勿团体大规模爬取, 造成代理服务器不可用
+github仓库内顺便加了个一次性下载数据库内所有图片的脚本, 有需要可以看一下, 文件夹download_image内, 请勿团体大规模爬取, 造成代理服务器不可用, 代理使用的是我自己提供的代理服务器setu.woshishaluan.top, 如果不可用请删除第42行代码使用数据库默认的i.pixiv.re
 
 ### 目前数据库去除unavailable, 共80749条记录
 
