@@ -191,7 +191,7 @@ class ManagerHandle:
         try:
             remsg = await download_database()
         except Exception as e:
-            remsg = f'获取 lolicon.db 失败: {e}'
+            remsg = f'获取 lolicon.db 失败: {repr(e)}'
         await matcher.finish(remsg)
 
 

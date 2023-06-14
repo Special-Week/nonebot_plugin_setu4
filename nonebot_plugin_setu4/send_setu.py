@@ -98,7 +98,7 @@ class SendSetu:
         try:
             data = await get_data.get_setu(matcher, key, num, r18, quality)
         except Exception as e:
-            await matcher.finish(str(e), at_sender=True)
+            await matcher.finish(repr(e), at_sender=True)
 
         # 发送的消息列表
         message_list = []
@@ -139,10 +139,10 @@ class SendSetu:
                 ]
                 # 发送转发消息, 并且记录消息id, 撤回用
                 setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
-        except ActionFailed as e:
-            logger.warning(e)
+        except Exception as e:
+            logger.warning(repr(e))
             await matcher.finish(
-                message=Message("消息被风控了捏，图发不出来，请尽量减少发送的图片数量"),
+                message=Message(f"消息可能被风控了，图发不出来，错误信息{repr(e)}"),
                 at_sender=True,
             )
 

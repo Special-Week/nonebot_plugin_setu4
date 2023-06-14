@@ -46,7 +46,7 @@ class PermissionManager:
                 self.cfg: dict = json.loads(f.read())
         except Exception as e:
             # 读取失败
-            logger.warning(f'setu_perm_cfg.json 读取失败, 尝试重建\n{str(e)}')
+            logger.warning(f'setu_perm_cfg.json 读取失败, 尝试重建\n{repr(e)}')
             self.cfg = {"proxy":"i.pixiv.re"}
             self.write_cfg()
         return self.cfg

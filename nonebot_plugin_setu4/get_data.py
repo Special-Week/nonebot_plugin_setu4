@@ -137,7 +137,7 @@ class GetData:
             try:
                 image = Image.open(f"{self.save_path}/{file_name}") # 尝试打开图片
             except Exception as e:
-                return ["Error", f"本地图片打开失败, 错误信息: {e}\nfile_name:{file_name}", False, setu_url]
+                return ["Error", f"本地图片打开失败, 错误信息: {repr(e)}\nfile_name:{file_name}", False, setu_url]
         else:
             logger.info(f"图片本地不存在,正在去{setu_proxy}下载")
             content: Union[bytes, int] = await download_pic(setu_url, client)
@@ -150,7 +150,7 @@ class GetData:
             try:
                 image = Image.open(BytesIO(content))    # 打开图片
             except Exception as e:
-                return ["Error", f"图片打开失败, 错误信息: {e}", False, setu_url]
+                return ["Error", f"图片打开失败, 错误信息: {repr(e)}", False, setu_url]
             # 保存图片, 如果save_path不为空, 以及图片不在all_file_name中, 那么就保存图片
             if self.save_path:
                 try:
@@ -158,13 +158,13 @@ class GetData:
                         f.write(content)
                     self.all_file_name.append(file_name)
                 except Exception as e:
-                    logger.error(f'图片存储失败: {e}')
+                    logger.error(f'图片存储失败: {repr(e)}')
         try:
             # 尝试修改图片
             pic = await self.change_pixel(image, quality)
             return [pic, data, True, setu_url]
         except Exception as e:
-            return ["Error", f"图片处理失败: {e}", False, setu_url]
+            return ["Error", f"图片处理失败: {repr(e)}", False, setu_url]
 
 
 # 实例化
