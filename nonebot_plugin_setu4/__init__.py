@@ -1,26 +1,29 @@
+import contextlib
 from re import I
 
 from nonebot import on_command, on_regex
 from nonebot.adapters.onebot.v11 import GROUP, PRIVATE_FRIEND
 from nonebot.permission import SUPERUSER
-from nonebot.plugin import PluginMetadata
 
 from .mamager_handle import manager_handle
 from .send_setu import send_setu
 
-__plugin_meta__ = PluginMetadata(
-    name="setu4",
-    description="内置数据库的setu插件, 尝试降低因为风控发不出图的概率",
-    usage=r"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?",
-    type="application",
-    homepage="https://github.com/Special-Week/nonebot_plugin_setu4",
-    supported_adapters={"~onebot.v11"},
-    extra={
-        'author':   'Special-Week',
-        'version':  '0.0.39',
-        'priority': 10,
-    }
-)
+with contextlib.suppress(Exception):
+    from nonebot.plugin import PluginMetadata
+    __plugin_meta__ = PluginMetadata(
+        name="setu4",
+        description="内置数据库的setu插件, 尝试降低因为风控发不出图的概率",
+        usage=r"^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?",
+        type="application",
+        homepage="https://github.com/Special-Week/nonebot_plugin_setu4",
+        supported_adapters={"~onebot.v11"},
+        extra={
+            'author':   'Special-Week',
+            'version':  '0.01.114514',
+            'priority': 10,
+        }
+    )
+
 
 
 # 命令正则表达式
