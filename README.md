@@ -15,7 +15,7 @@ download_image内还有二进制构建用来下载图, 可以直接拿去run. �
 如果我的服务器不可用了请自行更换(一个月2t流量)
 eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
-### 目前数据库去除unavailable, 共80749条记录
+### 目前数据库去除unavailable, 共82373条记录
 
 安装方式:
 
