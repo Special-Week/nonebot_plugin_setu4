@@ -12,7 +12,7 @@ download_image内还有二进制构建用来下载图, 可以直接拿去run. �
 
     -sem(下载的并发量) 
     -proxy(代理反代服务器地址, 默认为setu.woshishaluan.top)
-如果我的服务器不可用了请自行更换(一个月2t流量)
+如果我的服务器不可用了请自行更换(一个月6t流量)
 eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 ### 目前数据库去除unavailable, 共82373条记录
