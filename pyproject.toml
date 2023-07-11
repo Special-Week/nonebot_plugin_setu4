@@ -1,0 +1,15 @@
+[project]
+name = "nonebot_plugin_setu4"
+version = "0.02.114514"
+description = "内置数据库的setu插件, 尝试降低因为风控发不出图的概率"
+authors = [
+    {name = "Special-Week", email = "HuaMing27499@gmail.com"},
+]
+dependencies = [
+    "pillow>=9.1.1",
+    "nonebot2>=2.0.0b5",
+    "nonebot-adapter-onebot>=2.2.3",
+]
+requires-python = ">=3.8.0"
+readme = "README.md"
+license = {text = "MIT"}

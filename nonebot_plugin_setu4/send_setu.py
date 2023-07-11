@@ -6,10 +6,14 @@ from re import sub
 from typing import Tuple
 
 import nonebot
-from nonebot.adapters.onebot.v11 import (Bot, GroupMessageEvent, Message,
-                                         MessageEvent, MessageSegment,
-                                         PrivateMessageEvent)
-from nonebot.exception import ActionFailed
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    GroupMessageEvent,
+    Message,
+    MessageEvent,
+    MessageSegment,
+    PrivateMessageEvent,
+)
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import RegexGroup
@@ -37,39 +41,42 @@ class SendSetu:
         # ⣆⢕⠄⢱⣄⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⢁⢕⢕⠕⢁
         # ⣿⣦⡀⣿⣿⣷⣶⣬⣍⣛⣛⣛⡛⠿⠿⠿⠛⠛⢛⣛⣉⣭⣤⣂⢜⠕⢑⣡⣴⣿
 
-
-    def session_id(self, event: MessageEvent) -> str:
+    @staticmethod
+    def session_id(event: MessageEvent) -> str:
         """根据会话类型生成session_id, 一般返回str而不是None, 一般消息事件不是私聊就是群聊"""
         if isinstance(event, GroupMessageEvent):
-            return f'group_{str(event.group_id)}'
+            return f"group_{str(event.group_id)}"
         else:
-            return f'user_{str(event.user_id)}'
-        
+            return f"user_{str(event.user_id)}"
+
+    @staticmethod
     async def setu_handle(
-        self,
-        bot: Bot,
-        matcher: Matcher,
-        event: MessageEvent,
-        args: Tuple = RegexGroup()
+        bot: Bot, matcher: Matcher, event: MessageEvent, args: Tuple = RegexGroup()
     ) -> None:  # sourcery skip: low-code-quality
         """发送色图的处理函数"""
         # 获取用户输入的参数
         r18flag = args[2]
-        key = sub('[\'\"]', '', args[3])  # 去掉引号防止sql注入
+        key = sub("['\"]", "", args[3])  # 去掉引号防止sql注入
         num = int(sub(r"[张|个|份|x|✖️|×|X|*]", "", args[1])) if args[1] else 1
 
         # 根据会话类型生成session_id
         if isinstance(event, GroupMessageEvent):
-            session_id = f'group_{str(event.group_id)}'
-            user_type = 'group'
+            session_id = f"group_{str(event.group_id)}"
+            user_type = "group"
         else:
-            session_id = f'user_{str(event.user_id)}'
-            user_type = 'private'
+            session_id = f"user_{str(event.user_id)}"
+            user_type = "private"
 
         # 权限检查
         try:
-            user_type = 'SU' if (str(event.user_id) in nonebot.get_driver().config.superusers) else user_type
-            r18, num, withdraw_time = pm.check_permission(session_id, r18flag, num, user_type)
+            user_type = (
+                "SU"
+                if (str(event.user_id) in nonebot.get_driver().config.superusers)
+                else user_type
+            )
+            r18, num, withdraw_time = pm.check_permission(
+                session_id, r18flag, num, user_type
+            )
         except PermissionError as e:
             await matcher.finish(str(e), at_sender=True)
 
@@ -82,7 +89,9 @@ class SendSetu:
         else:
             quality = 95
         if num >= 3:
-            await matcher.send(f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50")
+            await matcher.send(
+                f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50"
+            )
 
         # key按照空格切割为数组, 用于多关键词搜索, 并且把数组中的空元素去掉
         key = key.split(" ")
@@ -105,10 +114,13 @@ class SendSetu:
         for pic in data:
             # 如果状态为True,说明图片拿到了
             if pic[2]:
-                message = f"{random.choice(setu_sendmessage)}{flag_log}" + \
-                            Message(pic[1]) + MessageSegment.image(pic[0]) # type: ignore
+                message = (
+                    f"{random.choice(setu_sendmessage)}{flag_log}"
+                    + Message(pic[1])
+                    + MessageSegment.image(pic[0])
+                )  # type: ignore
                 message_list.append(message)
-                flag_log = ''
+                flag_log = ""
             # 状态为false的消息,图片没拿到
             else:
                 message = pic[0] + pic[1]
@@ -123,22 +135,30 @@ class SendSetu:
             if isinstance(event, PrivateMessageEvent):
                 # 私聊直接发送
                 for msg in message_list:
-                    setu_msg_id.append((await matcher.send(msg))['message_id'])
+                    setu_msg_id.append((await matcher.send(msg))["message_id"])
                     await asyncio.sleep(0.5)
             elif isinstance(event, GroupMessageEvent):
                 msgs = [
                     {
-                        'type': 'node',
-                        'data': {
-                            'name': "setu-bot",
-                            'uin': bot.self_id,
-                            'content': msg,
+                        "type": "node",
+                        "data": {
+                            "name": "setu-bot",
+                            "uin": bot.self_id,
+                            "content": msg,
                         },
                     }
                     for msg in message_list
                 ]
                 # 发送转发消息, 并且记录消息id, 撤回用
-                setu_msg_id.append((await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=msgs))['message_id'])
+                setu_msg_id.append(
+                    (
+                        await bot.call_api(
+                            "send_group_forward_msg",
+                            group_id=event.group_id,
+                            messages=msgs,
+                        )
+                    )["message_id"]
+                )
         except Exception as e:
             logger.warning(repr(e))
             await matcher.finish(
@@ -149,7 +169,9 @@ class SendSetu:
         # 自动撤回涩图
         if withdraw_time != 0:
             with contextlib.suppress(Exception):
-                time_left = withdraw_time + start_time - time.time()  # 计算从开始发送到目前仍剩余的保留时间
+                time_left = (
+                    withdraw_time + start_time - time.time()
+                )  # 计算从开始发送到目前仍剩余的保留时间
                 await asyncio.sleep(1 if time_left <= 0 else time_left)
                 for msg_id in setu_msg_id:
                     await bot.delete_msg(message_id=msg_id)
