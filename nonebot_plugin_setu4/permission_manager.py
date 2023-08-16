@@ -140,7 +140,7 @@ class PermissionManager:
         tile_left = (
             self.read_cd(session_id) + self.read_last_send(session_id) - time.time()
         )
-        if tile_left > 0:
+        if tile_left > 0 and user_type != "SU":
             hours, minutes, seconds = 0, 0, 0
             if tile_left >= 60:
                 minutes, seconds = divmod(tile_left, 60)
