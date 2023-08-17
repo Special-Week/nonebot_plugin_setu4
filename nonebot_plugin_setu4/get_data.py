@@ -70,15 +70,15 @@ class GetData:
         cur = conn.cursor()
         # sql操作,根据keyword和r18进行查询拿到数据
         if not keywords:
-            sql = f"SELECT pid,title,author,r18,tags,urls from main where r18='{r18}' and status!='unavailable' order by random() limit {num}"
+            sql = f"SELECT pid,title,author,r18,tags,urls from main where r18={r18} and status!='unavailable' order by random() limit {num}"
         elif len(keywords) == 1:
-            sql = f"SELECT pid,title,author,r18,tags,urls from main where (tags like '%{keywords[0]}%' or title like '%{keywords[0]}%' or author like '%{keywords[0]}%') and r18='{r18}' and status!='unavailable' order by random() limit {num}"
+            sql = f"SELECT pid,title,author,r18,tags,urls from main where (tags like '%{keywords[0]}%' or title like '%{keywords[0]}%' or author like '%{keywords[0]}%') and r18={r18} and status!='unavailable' order by random() limit {num}"
         else:  # 多tag的情况下的sql语句
             tag_sql = "".join(
                 f"tags like '%{i}%'" if i == keywords[-1] else f"tags like '%{i}%' and "
                 for i in keywords
             )
-            sql = f"SELECT pid,title,author,r18,tags,urls from main where (({tag_sql}) and r18='{r18}' and status!='unavailable') order by random() limit {num}"
+            sql = f"SELECT pid,title,author,r18,tags,urls from main where (({tag_sql}) and r18={r18} and status!='unavailable') order by random() limit {num}"
         db_data = cur.execute(sql).fetchall()
         # 断开数据库连接
         conn.close()
@@ -102,10 +102,10 @@ class GetData:
         或者
         [图片(bytes), data(图片信息), True(是否拿到了图), setu_url]
         """
-        setu_pid = setu[0]  # pid
-        setu_title = setu[1]  # 标题
-        setu_author = setu[2]  # 作者
-        setu_r18 = setu[3]  # r18
+        setu_pid: int = setu[0]  # pid
+        setu_title: str = setu[1]  # 标题
+        setu_author: str = setu[2]  # 作者
+        setu_r18: str = "True" if setu[3] == 1 else "False"  # r18
         setu_tags: str = setu[4]  # 标签
         setu_url: str = setu[5].replace("i.pixiv.re", setu_proxy)  # 图片url
 

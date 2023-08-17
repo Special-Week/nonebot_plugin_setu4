@@ -28,7 +28,9 @@ async def download_database() -> str:
 async def download_pic(url: str, client: AsyncClient) -> Union[bytes, int]:
     "下载图片并且返回content(bytes),或者status_code"
     try:
-        re = await client.get(url=url, timeout=120)
+        re = await client.get(
+            url=url, timeout=120, headers={"Referer": "https://www.pixiv.net/"}
+        )
         if re.status_code != 200:
             return re.status_code
         logger.success("成功获取图片")
