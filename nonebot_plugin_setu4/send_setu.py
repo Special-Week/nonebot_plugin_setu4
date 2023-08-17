@@ -6,6 +6,7 @@ from re import sub
 from typing import Tuple
 
 import nonebot
+from loguru import logger
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -14,7 +15,6 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     PrivateMessageEvent,
 )
-from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import RegexGroup
 

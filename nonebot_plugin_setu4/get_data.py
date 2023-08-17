@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import List, Union
 
 from httpx import AsyncClient
-from nonebot.log import logger
+from loguru import logger
 from nonebot.matcher import Matcher
 from PIL import Image
 

@@ -9,6 +9,7 @@ dependencies = [
     "pillow>=9.1.1",
     "nonebot2>=2.0.0b5",
     "nonebot-adapter-onebot>=2.2.3",
+    "httpx"
 ]
 requires-python = ">=3.8.0"
 readme = "README.md"
