@@ -18,7 +18,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 另外：数据库的表结构性能极低，如果想拿来做api什么的建议把数据洗一下，比如分成多个表，tags单独分一个表，并且建立索引
 
-### 目前数据库去除unavailable, 共82815条记录
+### 目前数据库去除unavailable, 共83961条记录
 
 安装方式:
 
@@ -26,7 +26,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
     
     nb plugin install nonebot-plugin-setu4
     
-    有能力尽量从本仓库clone, 因为pypi不一定最新
+    有能力尽量从本仓库clone, 因为pypi数据库不一定最新(可能会差个几千条)
 
 ## env 配置项
 
