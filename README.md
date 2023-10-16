@@ -18,7 +18,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 另外：数据库的表结构性能极低，如果想拿来做api什么的建议把数据洗一下，比如分成多个表，tags单独分一个表，并且建立索引
 
-### 目前数据库去除unavailable, 共87789条记录
+### 目前数据库去除unavailable, 共89795条记录
 
 安装方式:
 
@@ -39,6 +39,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 |setu_perm_cfg_path |str             |see example|setu_perm_cfg_path = './data/setu4'      |会话(群号或QQ号)启用、r18及其他独立配置项  |
 |setu_save          |str             |None       |setu_save = './data/setu4/img'           |setu保存到本地的路径, 留空则不保存至本地   |
 |setu_database_path |str             |see example|setu_database_path = see description[^1] |更新使用的数据库的地址, 默认为此项目的resource文件夹下|
+|group_forward_msg  |bool            |False      |group_forward_msg = True                 |群聊是否以转发的形式发送色图             |
 |setu_cd*           |int             |20         |setu_cd = 30                             |setu默认cd[0,+∞], 为0时无cd              |
 |setu_withdraw_time*|int             |100        |setu_withdraw_time = 30                  |setu默认撤回时间[0,100], 为0时不撤回      |
 |setu_max_num*      |int             |10         |setu_max_num = 20                        |setu默认一次性最大数量[1,25]              |

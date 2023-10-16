@@ -13,7 +13,6 @@ from nonebot.adapters.onebot.v11 import (
     Message,
     MessageEvent,
     MessageSegment,
-    PrivateMessageEvent,
 )
 from nonebot.matcher import Matcher
 from nonebot.params import RegexGroup
@@ -105,7 +104,7 @@ class SendSetu:
 
         # data是数组套娃, 数组中的每个元素内容为: [图片, 信息, True/False, url]
         try:
-            data = await get_data.get_setu(matcher, key, num, r18, quality)
+            data = await get_data.get_setu(key, num, r18, quality)
         except Exception as e:
             await matcher.finish(repr(e), at_sender=True)
 
@@ -132,12 +131,8 @@ class SendSetu:
         # 尝试发送
         try:
             start_time = time.time()  # 记录开始发送的时间
-            if isinstance(event, PrivateMessageEvent):
-                # 私聊直接发送
-                for msg in message_list:
-                    setu_msg_id.append((await matcher.send(msg))["message_id"])
-                    await asyncio.sleep(0.5)
-            elif isinstance(event, GroupMessageEvent):
+            # 如果是群聊并且env设置了群聊转发, 那么就转发
+            if isinstance(event, GroupMessageEvent) and pm.group_forward_msg:
                 msgs = [
                     {
                         "type": "node",
@@ -159,6 +154,11 @@ class SendSetu:
                         )
                     )["message_id"]
                 )
+            else:
+                # 非群聊直接发送
+                for msg in message_list:
+                    setu_msg_id.append((await matcher.send(msg))["message_id"])
+                    await asyncio.sleep(0.5)
         except Exception as e:
             logger.warning(repr(e))
             await matcher.finish(

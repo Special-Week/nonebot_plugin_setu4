@@ -21,6 +21,7 @@ class Config(BaseSettings):
     setu_cd: int = 30  # 冷却时间
     setu_withdraw_time: int = 100  # 撤回时间
     setu_max_num: int = 10  # 最大数量
+    group_forward_msg: bool = False
 
     class Config:
         extra = "ignore"
@@ -37,5 +38,6 @@ config.setu_withdraw_time = min(100, config.setu_withdraw_time)
 config.setu_max_num = max(1, config.setu_max_num)  # setu_max_num不能大于1小于25
 config.setu_max_num = min(25, config.setu_max_num)
 
-if type(config.setu_save) == str:
+if isinstance(config.setu_save, str):
     Path(config.setu_save).mkdir(0o755, parents=True, exist_ok=True)
+

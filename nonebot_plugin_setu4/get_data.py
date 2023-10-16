@@ -8,7 +8,6 @@ from typing import List, Union
 
 from httpx import AsyncClient
 from loguru import logger
-from nonebot.matcher import Matcher
 from PIL import Image
 
 from .config import config
@@ -52,7 +51,6 @@ class GetData:
 
     async def get_setu(
         self,
-        matcher: Matcher,
         keywords: List[str],
         num: int = 1,
         r18: bool = False,
@@ -84,7 +82,7 @@ class GetData:
         conn.close()
         # 如果没有返回结果
         if db_data == []:
-            await matcher.finish(f"图库中没有搜到关于{keywords}的图。")
+            raise ValueError(f"图库中没有搜到关于{keywords}的图。")
         # 并发下载图片
         async with AsyncClient() as client:
             tasks = [
@@ -109,9 +107,9 @@ class GetData:
         setu_tags: str = setu[4]  # 标签
         setu_url: str = setu[5].replace("i.pixiv.re", setu_proxy)  # 图片url
 
-        data = f"标题:{setu_title}" + "\npid:" + str(setu_pid) + "\n画师:" + setu_author
+        data = f"标题:{setu_title}\npid:{setu_pid}\n画师:{setu_author}"
 
-        logger.info("\n" + data + "\ntags:" + setu_tags + "\nR18:" + setu_r18)  # 打印信息
+        logger.info(f"\n{data}\ntags:{setu_tags}\nR18:{setu_r18}")  # 打印信息
         file_name = setu_url.split("/")[-1]  # 获取文件名
 
         # 判断文件是否本地存在

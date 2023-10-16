@@ -34,6 +34,7 @@ class PermissionManager:
         self.setu_max_num = config.setu_max_num
         self.setu_disable_wlist = config.setu_disable_wlist
         self.setu_enable_private = config.setu_enable_private
+        self.group_forward_msg = config.group_forward_msg
         self.read_cfg()
 
     def read_cfg(self) -> dict:
