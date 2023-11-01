@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_setu4"
-version = "0.06.114514"
+version = "0.08.114514"
 description = "内置数据库的setu插件, 尝试降低因为风控发不出图的概率"
 authors = [
     {name = "Special-Week", email = "HuaMing27499@gmail.com"},
