@@ -18,17 +18,3 @@ python Download_img.py
 url = url.replace('i.pixiv.re', 'setu.woshishaluan.top') 
 ```
 这行代码, 将setu.woshishaluan.top换成你想要的反代地址即可 (也可以直接删掉用i.pixiv.re)
-
-
-## 懒人
-- 直接运行这下面的二进制构建也可下载图片
-
-- 如果用命令行启动用有两个参数可选:
-
-```
--sem(下载的并发量) 
--proxy(代理反代服务器地址, 默认为setu.woshishaluan.top)
-```
-
-如果我的服务器不可用了请自行更换
-eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re

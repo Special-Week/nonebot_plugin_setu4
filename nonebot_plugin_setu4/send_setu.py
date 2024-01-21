@@ -17,6 +17,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 from nonebot.params import RegexGroup
 
+from .config import config
 from .get_data import get_data
 from .permission_manager import pm
 from .setu_message import setu_sendmessage
@@ -42,7 +43,10 @@ class SendSetu:
 
     @staticmethod
     def session_id(event: MessageEvent) -> str:
-        """根据会话类型生成session_id, 一般返回str而不是None, 一般消息事件不是私聊就是群聊"""
+        """
+        根据会话类型生成session_id, 一般返回str而不是None, 一般消息事件不是私聊就是群聊
+        """
+
         if isinstance(event, GroupMessageEvent):
             return f"group_{str(event.group_id)}"
         else:
@@ -52,7 +56,10 @@ class SendSetu:
     async def setu_handle(
         bot: Bot, matcher: Matcher, event: MessageEvent, args: Tuple = RegexGroup()
     ) -> None:  # sourcery skip: low-code-quality
-        """发送色图的处理函数"""
+        """
+        发送色图的处理函数
+        """
+
         # 获取用户输入的参数
         r18flag = args[2]
         key = sub("['\"]", "", args[3])  # 去掉引号防止sql注入
@@ -79,18 +86,11 @@ class SendSetu:
         except PermissionError as e:
             await matcher.finish(str(e), at_sender=True)
 
-        # 色图图片质量, 如果num为3-6质量为70,如果num为7-max质量为50,其余为95(图片质量太高发起来太费时间了)
-        # quality = 95就是原图
-        if num >= 3 and num <= 6:
-            quality = 70
-        elif num >= 7:
-            quality = 50
-        else:
-            quality = 95
-        if num >= 3:
-            await matcher.send(
-                f"由于数量过多请等待\n当前图片质量为{quality}\n3-6:quality = 70\n7+:quality = 50"
-            )
+        # quality = 95是最佳质量(图片质量太高发起来太费时间了)
+        quality = 95
+        if num > config.setu_quality[0]:
+            quality = config.setu_quality[1]
+            await matcher.send("由于数量过多请等待片刻")
 
         # key按照空格切割为数组, 用于多关键词搜索, 并且把数组中的空元素去掉
         key = key.split(" ")

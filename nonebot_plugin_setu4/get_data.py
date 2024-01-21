@@ -4,7 +4,7 @@ import random
 import sqlite3
 from io import BytesIO
 from pathlib import Path
-from typing import List, Union
+from typing import Dict, List, Union
 
 from httpx import AsyncClient
 from loguru import logger
@@ -17,18 +17,22 @@ from .permission_manager import pm
 
 class GetData:
     def __init__(self) -> None:
-        """初始化保存图片的路径以及该路径下的所有文件名"""
+        """
+        初始化保存图片的路径以及该路径下的所有文件名
+        """
+
+        self.all_file_name: Dict[str, set] = {"nsfw": set(), "sfw": set()}
         if config.setu_save:
-            self.save_path: Union[bool, str] = config.setu_save
-            self.all_file_name: List[str] = os.listdir(self.save_path)
-        else:
-            self.save_path: Union[bool, str] = False
-            self.all_file_name: List[str] = []
+            self.all_file_name["nsfw"] = set(os.listdir(config.setu_nsfw_path))
+            self.all_file_name["sfw"] = set(os.listdir(config.setu_sfw_path))
         self.database_path: Path = Path(__file__).parent / "resource/lolicon.db"
 
     @staticmethod
     async def change_pixel(image, quality: int) -> bytes:
-        """图像镜像左右翻转, 并且随机修改左上角一个像素点"""
+        """
+        图像镜像左右翻转, 并且随机修改左上角一个像素点
+        """
+
         image = image.transpose(Image.FLIP_LEFT_RIGHT)
         image = image.convert("RGB")
         image.load()[0, 0] = (
@@ -41,13 +45,18 @@ class GetData:
         return byte_data.getvalue()
 
     async def update_status_unavailable(self, urls: str) -> None:
-        """更新数据库中的图片状态为unavailable"""
+        """
+        更新数据库中的图片状态为unavailable
+
+        params: urls: 图片的url
+        """
+
         conn = sqlite3.connect(self.database_path)
         cur = conn.cursor()
         sql = f"UPDATE main set status='unavailable' where urls='{urls}'"  # 手搓sql语句
-        cur.execute(sql)  # 执行
-        conn.commit()  # 提交事务
-        conn.close()  # 关闭连接
+        cur.execute(sql)
+        conn.commit()
+        conn.close()
 
     async def get_setu(
         self,
@@ -62,7 +71,13 @@ class GetData:
             [图片(bytes), data(图片信息), True(是否拿到了图), setu_url],
             [Error(错误), message(错误信息), False(是否拿到了图), setu_url]
         ]
+
+        params: keywords: 关键词列表
+                num: 数量
+                r18: 是否r18
+                quality: 图片质量
         """
+
         data = []
         conn = sqlite3.connect(self.database_path)  # 连接数据库
         cur = conn.cursor()
@@ -84,7 +99,7 @@ class GetData:
         if db_data == []:
             raise ValueError(f"图库中没有搜到关于{keywords}的图。")
         # 并发下载图片
-        async with AsyncClient() as client:
+        async with AsyncClient(proxies=config.scientific_agency) as client:
             tasks = [
                 self.pic(setu, quality, client, pm.read_proxy()) for setu in db_data
             ]
@@ -92,14 +107,20 @@ class GetData:
         return data
 
     async def pic(
-        self, setu: list, quality: int, client: AsyncClient, setu_proxy: str
-    ) -> list:
+        self, setu: List, quality: int, client: AsyncClient, setu_proxy: str
+    ) -> List:  # sourcery skip: low-code-quality
         """
         返回setu消息列表
         [Error(错误), message(错误信息), False(是否拿到了图), setu_url]
         或者
         [图片(bytes), data(图片信息), True(是否拿到了图), setu_url]
+
+        params: setu: 数据库中的一条数据
+                quality: 图片质量
+                client: httpx的AsyncClient
+                setu_proxy: 反向代理的url
         """
+
         setu_pid: int = setu[0]  # pid
         setu_title: str = setu[1]  # 标题
         setu_author: str = setu[2]  # 作者
@@ -113,11 +134,18 @@ class GetData:
         file_name = setu_url.split("/")[-1]  # 获取文件名
 
         # 判断文件是否本地存在
-        is_in_all_file_name = file_name in self.all_file_name
+        is_nsfw = setu_r18 == "True"
+        # 当不保存的时候, save_path为False, 保存的时候, save_path为路径
+        save_path: Union[bool, str] = (
+            config.setu_nsfw_path if is_nsfw else config.setu_sfw_path
+        )
+        is_in_all_file_name = (
+            file_name in self.all_file_name["nsfw" if is_nsfw else "sfw"]
+        )
         if is_in_all_file_name:
             logger.info("图片本地存在")
             try:
-                image = Image.open(f"{self.save_path}/{file_name}")  # 尝试打开图片
+                image = Image.open(f"{save_path}/{file_name}")  # 尝试打开图片
             except Exception as e:
                 return [
                     "Error",
@@ -128,7 +156,9 @@ class GetData:
         else:
             logger.info(f"图片本地不存在,正在去{setu_proxy}下载")
             content: Union[bytes, int] = await download_pic(setu_url, client)
-            if isinstance(content, int):  # 如果返回的是int, 那么就是状态码, 表示下载失败
+            if isinstance(
+                content, int
+            ):  # 如果返回的是int, 那么就是状态码, 表示下载失败
                 if (
                     content == 404
                 ):  # 如果是404, 404表示文件不存在, 说明作者删除了图片, 那么就把这个url的status改为unavailable, 下次sql操作的时候就不会再拿到这个url了
@@ -143,11 +173,11 @@ class GetData:
             except Exception as e:
                 return ["Error", f"图片打开失败, 错误信息: {repr(e)}", False, setu_url]
             # 保存图片, 如果save_path不为空, 以及图片不在all_file_name中, 那么就保存图片
-            if self.save_path:
+            if save_path:
                 try:
-                    with open(f"{self.save_path}/{file_name}", "wb") as f:
+                    with open(f"{save_path}/{file_name}", "wb") as f:
                         f.write(content)
-                    self.all_file_name.append(file_name)
+                    self.all_file_name["nsfw" if is_nsfw else "sfw"].add(file_name)
                 except Exception as e:
                     logger.error(f"图片存储失败: {repr(e)}")
         try:

@@ -27,7 +27,10 @@ class ManagerHandle:
     async def open_setu(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """开启或关闭会话的setu功能"""
+        """
+        开启或关闭会话的setu功能
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         # 分析是新增还是删除
@@ -51,7 +54,10 @@ class ManagerHandle:
     async def set_r18(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """开启或关闭会话的r18模式"""
+        """
+        开启或关闭会话的r18模式
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         # 分析是开启还是关闭
@@ -60,7 +66,9 @@ class ManagerHandle:
         elif "off" in msg:
             r18mode = False
         else:
-            await matcher.finish(f"无效参数: {msg}, 请输入 on 或 off 为参数, eg: on group_114514")
+            await matcher.finish(
+                f"无效参数: {msg}, 请输入 on 或 off 为参数, eg: on group_114514"
+            )
         if isinstance(event, GroupMessageEvent):
             sid = f"group_{str(event.group_id)}"
         else:
@@ -72,7 +80,10 @@ class ManagerHandle:
     async def set_cd(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """获取setu的cd时间"""
+        """
+        获取setu的cd时间
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         if msg.isdigit() and isinstance(event, GroupMessageEvent):
@@ -93,7 +104,10 @@ class ManagerHandle:
     async def set_wd(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """获取setu的撤回时间"""
+        """
+        获取setu的撤回时间
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         if msg.isdigit() and isinstance(event, GroupMessageEvent):
@@ -114,7 +128,10 @@ class ManagerHandle:
     async def set_maxnum(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """获取一次性setu的最大张数"""
+        """
+        获取一次性setu的最大张数
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         if msg.isdigit() and isinstance(event, GroupMessageEvent):
@@ -135,7 +152,10 @@ class ManagerHandle:
     async def ban_setu(
         self, matcher: Matcher, event: MessageEvent, cmd: Message = CommandArg()
     ) -> None:
-        """开启或关闭会话的setu功能"""
+        """
+        开启或关闭会话的setu功能
+        """
+
         # 获取命令后面的参数
         msg = cmd.extract_plain_text().strip()
         # 分析是新增还是删除
@@ -160,14 +180,20 @@ class ManagerHandle:
     async def setu_help(
         matcher: Matcher,
     ) -> None:
-        """setu指令帮助"""
+        """
+        setu指令帮助
+        """
+
         await matcher.finish(HELP_MSG)
 
     @staticmethod
     async def setu_db(
         matcher: Matcher,
     ) -> None:
-        """拉取数据库"""
+        """
+        拉取数据库
+        """
+
         await matcher.send(
             "此功能由于大陆对github的半墙, 国内服务器可能造成数据丢失或无法写入等错误, 不确定性较大, 万一数据库丢失请重新clone"
         )
@@ -179,7 +205,10 @@ class ManagerHandle:
 
     @staticmethod
     async def query_black_white_list(matcher: Matcher) -> None:
-        """查新黑白名单"""
+        """
+        查新黑白名单
+        """
+
         res = pm.read_cfg()
         key_list = list(res.keys())  # 拿到所有的keys
         for element in ["ban", "last", "proxy"]:
@@ -190,7 +219,10 @@ class ManagerHandle:
 
     @staticmethod
     async def set_proxy(proxy) -> str:
-        """设置代理并且ping"""
+        """
+        设置代理并且ping
+        """
+
         pm.update_proxy(proxy)
         plat = platform.system().lower()  # 获取系统
         return (
@@ -200,18 +232,26 @@ class ManagerHandle:
         )
 
     async def replace_proxy_got(self, matcher: Matcher, event: MessageEvent) -> None:
-        """没参数的情况下"""
+        """
+        没参数的情况下
+        """
+
         msg: str = str(event.get_message())  # 获取消息文本
         if not msg or msg.isspace():
             await matcher.finish("需要输入proxy")
         await matcher.send(f"{msg}已经替换, 正在尝试ping操作验证连通性")  # 发送消息
         result = await self.set_proxy(msg.strip())
-        await matcher.send(f"{result}\n如果丢失的数据比较多, 请考虑重新更换代理")  # 发送消息
+        await matcher.send(
+            f"{result}\n如果丢失的数据比较多, 请考虑重新更换代理"
+        )  # 发送消息
 
     async def replace_proxy(
         self, matcher: Matcher, arg: Message = CommandArg()
     ) -> None:
-        """有参数的情况"""
+        """
+        有参数的情况
+        """
+
         msg = arg.extract_plain_text().strip()  # 获取消息文本
         if not msg or msg.isspace():
             await matcher.pause(
@@ -220,7 +260,9 @@ class ManagerHandle:
         else:
             await matcher.send(f"{msg}已经替换, 正在尝试ping操作验证连通性")  # 发送消息
             result = await self.set_proxy(msg)
-            await matcher.finish(f"{result}\n如果丢失的数据比较多, 请考虑重新更换代理")  # 发送消息
+            await matcher.finish(
+                f"{result}\n如果丢失的数据比较多, 请考虑重新更换代理"
+            )  # 发送消息
 
 
 manager_handle = ManagerHandle()

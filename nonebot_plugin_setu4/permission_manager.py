@@ -7,7 +7,8 @@ from loguru import logger
 from .config import DATA_PATH, config
 from .setu_message import setu_sendcd
 
-"""{
+"""
+{
     'group_114':{
         'cd'       : 30,     # cd时长
         'r18'      : True,   # r18开关
@@ -22,12 +23,16 @@ from .setu_message import setu_sendcd
         'group_810'
     ],
     'proxy':'i.pixiv.re'  # 代理地址
-}"""
+}
+"""
 
 
 class PermissionManager:
     def __init__(self) -> None:
-        """初始化一些配置"""
+        """
+        初始化一些配置
+        """
+
         self.setu_perm_cfg_filepath = DATA_PATH / "setu_perm_cfg.json"
         self.setu_cd = config.setu_cd
         self.setu_withdraw_time = config.setu_withdraw_time
@@ -38,7 +43,10 @@ class PermissionManager:
         self.read_cfg()
 
     def read_cfg(self) -> dict:
-        """读取配置文件"""
+        """
+        读取配置文件
+        """
+
         try:
             # 尝试读取
             with open(self.setu_perm_cfg_filepath, "r", encoding="utf-8") as f:
@@ -51,7 +59,10 @@ class PermissionManager:
         return self.cfg
 
     def write_cfg(self):
-        """写入配置文件"""
+        """
+        写入配置文件
+        """
+
         with open(self.setu_perm_cfg_filepath, "w", encoding="utf-8") as f:
             f.write(json.dumps(self.cfg))
 
@@ -59,42 +70,60 @@ class PermissionManager:
 
     # --------------- 查询系统 开始 ---------------
     def read_last_send(self, session_id: str) -> float:
-        """查询最后一次发送时间"""
+        """
+        查询最后一次发送时间
+        """
+
         try:
             return self.cfg["last"][session_id]
         except KeyError:
             return 0
 
     def read_cd(self, session_id: str) -> int:
-        """查询cd"""
+        """
+        查询cd
+        """
+
         try:
             return self.cfg[session_id]["cd"]
         except KeyError:
             return self.setu_cd
 
     def read_withdraw_time(self, session_id: str) -> int:
-        """查询撤回时间"""
+        """
+        查询撤回时间
+        """
+
         try:
             return self.cfg[session_id]["withdraw"]
         except KeyError:
             return self.setu_withdraw_time
 
     def read_max_num(self, session_id: str) -> int:
-        """查询最大张数"""
+        """
+        查询最大张数
+        """
+
         try:
             return self.cfg[session_id]["maxnum"]
         except KeyError:
             return self.setu_max_num
 
     def read_r18(self, session_id: str) -> bool:
-        """查询r18"""
+        """
+        查询r18
+        """
+
         try:
             return self.cfg[session_id]["r18"]
         except KeyError:
             return False
 
     def read_ban_list(self, session_id: str) -> bool:
-        """查询黑名单"""
+        """
+        查询黑名单
+        """
+
         try:
             return session_id in self.cfg["ban"]
         except KeyError:
@@ -106,7 +135,8 @@ class PermissionManager:
     def check_permission(
         self, session_id: str, r18flag: bool, num: int, user_type: str = "group"
     ):
-        """查询权限, 并返回修正过的参数
+        """
+        查询权限, 并返回修正过的参数
 
         Args:
             sessionId (str): [会话信息]
@@ -121,6 +151,7 @@ class PermissionManager:
         Returns:
             [bool, int, int]: [r18是否启用, 图片张数, 撤回时间]
         """
+
         # 优先采用黑名单检查
         if self.read_ban_list(session_id):
             logger.warning(f"涩图功能对 {session_id} 禁用！")
@@ -165,7 +196,10 @@ class PermissionManager:
 
     # --------------- 冷却更新 开始 ---------------
     def update_last_send(self, session_id: str):
-        """更新最后一次发送时间"""
+        """
+        更新最后一次发送时间
+        """
+
         try:
             self.cfg["last"][session_id] = time.time()
         except KeyError:
@@ -175,7 +209,10 @@ class PermissionManager:
 
     # --------------- 增删系统 开始 ---------------
     def update_white_list(self, session_id: str, add_mode: bool) -> str:
-        """更新白名单"""
+        """
+        更新白名单
+        """
+
         if add_mode:
             if session_id in self.cfg.keys():
                 return f"{session_id}已在白名单"
@@ -191,7 +228,10 @@ class PermissionManager:
             return f"{session_id}不在白名单"
 
     def update_cd(self, session_id: str, cd_time: int) -> str:
-        """更新cd时间"""
+        """
+        更新cd时间
+        """
+
         # 检查是否已在白名单, 不在则结束
         if session_id not in self.cfg.keys():
             return f"{session_id}不在白名单, 请先添加至白名单后操作"
@@ -209,7 +249,10 @@ class PermissionManager:
         return f"成功更新冷却时间 {cd_time_old} -> {cd_time}"
 
     def update_withdraw_time(self, session_id: str, withdraw_time: int) -> str:
-        """更新撤回时间"""
+        """
+        更新撤回时间
+        """
+
         # 检查是否已在白名单, 不在则结束
         if session_id not in self.cfg.keys():
             return f"{session_id}不在白名单, 请先添加至白名单后操作"
@@ -228,7 +271,10 @@ class PermissionManager:
         return f"成功更新撤回时间 {withdraw_time_old} -> {withdraw_time}"
 
     def update_max_num(self, session_id: str, max_num: int) -> str:
-        """更新最大张数"""
+        """
+        更新最大张数
+        """
+
         # 检查是否已在白名单, 不在则结束
         if session_id not in self.cfg.keys():
             return f"{session_id}不在白名单, 请先添加至白名单后操作"
@@ -248,7 +294,10 @@ class PermissionManager:
 
     def update_r18(self, session_id: str, r18_mode: bool) -> str:
         # sourcery skip: extract-duplicate-method
-        """更新r18权限"""
+        """
+        更新r18权限
+        """
+
         # 检查是否已在白名单, 不在则结束
         if session_id not in self.cfg.keys():
             return f"{session_id}不在白名单, 请先添加至白名单后操作"
@@ -267,7 +316,10 @@ class PermissionManager:
             return f"{session_id}未开启r18"
 
     def update_ban_list(self, session_id: str, add_mode: bool) -> str:
-        """更新黑名单"""
+        """
+        更新黑名单
+        """
+
         if add_mode:
             try:
                 if session_id in self.cfg["ban"]:
@@ -287,12 +339,18 @@ class PermissionManager:
                 return f"{session_id}不在黑名单"
 
     def update_proxy(self, proxy: str) -> None:
-        """更新代理"""
+        """
+        更新代理
+        """
+
         self.cfg["proxy"] = proxy
         self.write_cfg()
 
     def read_proxy(self) -> str:
-        """查询代理"""
+        """
+        查询代理
+        """
+
         try:
             return self.cfg["proxy"]
         except KeyError:
