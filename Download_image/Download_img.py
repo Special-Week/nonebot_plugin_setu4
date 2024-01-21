@@ -11,7 +11,10 @@ from loguru import logger
 
 class DownloadImg:
     def __init__(self) -> None:
-        """初始化数据库连接, 创建img文件夹, 初始化数据"""
+        """
+        初始化数据库连接, 创建img文件夹, 初始化数据
+        """
+
         self.cur = sqlite3.connect("lolicon.db").cursor()
         logger.info("数据库连接成功")
         try:
@@ -28,7 +31,10 @@ class DownloadImg:
         self.error_json = {}
 
     async def main(self) -> None:
-        """主函数, 发起下载任务"""
+        """
+        主函数, 发起下载任务
+        """
+
         task_list = []
         sem = asyncio.Semaphore(30)
         for item in self.data:
@@ -45,7 +51,10 @@ class DownloadImg:
     async def start_download(
         self, url: str, file_name: str, sem: asyncio.Semaphore, r18: int
     ):
-        """下载图片"""
+        """
+        下载图片
+        """
+
         url = url.replace("i.pixiv.re", "setu.woshishaluan.top")  # 反代地址
         save_path = f"img/nsfw/{file_name}" if r18 else f"img/sfw/{file_name}"
         async with sem:
@@ -71,7 +80,10 @@ class DownloadImg:
                 self.save_error()
 
     def save_error(self):
-        """保存错误信息"""
+        """
+        保存错误信息
+        """
+        
         with open("error.json", "w", encoding="utf-8") as f:
             json.dump(self.error_json, f, ensure_ascii=False, indent=4)
 
