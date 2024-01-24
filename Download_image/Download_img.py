@@ -4,6 +4,7 @@ import json
 import os
 import random
 import sqlite3
+from pathlib import Path
 
 from httpx import AsyncClient
 from loguru import logger
@@ -15,15 +16,10 @@ class DownloadImg:
         初始化数据库连接, 创建img文件夹, 初始化数据
         """
 
-        self.cur = sqlite3.connect("lolicon.db").cursor()
+        self.cur = sqlite3.connect("setu_data.db").cursor()
         logger.info("数据库连接成功")
-        try:
-            logger.info("创建img文件夹")
-            os.mkdir("img")
-            os.mkdir("img/nsfw")
-            os.mkdir("img/sfw")
-        except Exception:
-            logger.debug("文件夹已存在")
+        Path("img/nsfw").mkdir(exist_ok=True, parents=True)
+        Path("img/sfw").mkdir(exist_ok=True)
         self.data: list = self.cur.execute(
             "SELECT urls,r18 from main where status!='unavailable'"
         ).fetchall()
@@ -83,7 +79,7 @@ class DownloadImg:
         """
         保存错误信息
         """
-        
+
         with open("error.json", "w", encoding="utf-8") as f:
             json.dump(self.error_json, f, ensure_ascii=False, indent=4)
 

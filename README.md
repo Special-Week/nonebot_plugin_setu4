@@ -18,7 +18,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 另外：数据库的表结构性能极低，如果想拿来做api什么的建议把数据洗一下，比如分成多个表，tags单独分一个表，并且建立索引
 
-### 目前数据库去除unavailable, 共97369条记录
+### 目前数据库去除unavailable, 共100000条记录
 
 安装方式:
 
