@@ -67,10 +67,10 @@ class SendSetu:
 
         # 根据会话类型生成session_id
         if isinstance(event, GroupMessageEvent):
-            session_id = f"group_{str(event.group_id)}"
+            session_id = f"group_{event.group_id}"
             user_type = "group"
         else:
-            session_id = f"user_{str(event.user_id)}"
+            session_id = f"user_{event.user_id}"
             user_type = "private"
 
         # 权限检查
@@ -85,7 +85,8 @@ class SendSetu:
             )
         except PermissionError as e:
             await matcher.finish(str(e), at_sender=True)
-
+        # 检查是否需要撤回, 如果withdraw_time为0 或者 用户在env设置了sfw_withdraw=False切图片非r18时, 那么就不撤回
+        will_withdraw = bool(withdraw_time != 0 and (r18 or config.sfw_withdraw))
         # quality = 95是最佳质量(图片质量太高发起来太费时间了)
         quality = 95
         if num > config.setu_quality[0]:
@@ -93,11 +94,10 @@ class SendSetu:
             await matcher.send("由于数量过多请等待片刻")
 
         # key按照空格切割为数组, 用于多关键词搜索, 并且把数组中的空元素去掉
-        key = key.split(" ")
-        key = [word.strip() for word in key if word.strip()]
+        key = [word.strip() for word in key.split(" ") if word.strip()]
 
         # 控制台输出
-        flag_log = f"\nR18 == {str(r18)}\nkeyword == {key}\nnum == {num}\n"
+        flag_log = f"\nR18 == {r18}\nkeyword == {key}\nnum == {num}\n"
         logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")
         # 记录时间, 计算CD用
         pm.update_last_send(session_id)
@@ -113,17 +113,15 @@ class SendSetu:
         for pic in data:
             # 如果状态为True,说明图片拿到了
             if pic[2]:
-                message = (
+                message_list.append(
                     f"{random.choice(setu_sendmessage)}{flag_log}"
                     + Message(pic[1])
                     + MessageSegment.image(pic[0])
-                )  # type: ignore
-                message_list.append(message)
+                )
                 flag_log = ""
             # 状态为false的消息,图片没拿到
             else:
-                message = pic[0] + pic[1]
-                message_list.append(message)
+                message_list.append(pic[0] + pic[1])
 
         # 为后面撤回消息做准备
         setu_msg_id = []
@@ -167,7 +165,7 @@ class SendSetu:
             )
 
         # 自动撤回涩图
-        if withdraw_time != 0:
+        if will_withdraw:
             with contextlib.suppress(Exception):
                 time_left = (
                     withdraw_time + start_time - time.time()

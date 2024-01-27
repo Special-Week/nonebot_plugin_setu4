@@ -215,7 +215,10 @@ class ManagerHandle:
             if element in key_list:
                 key_list.remove(element)
         # 黑名单内容则在res['ban']
-        await matcher.send(f"白名单: {key_list}\n\n黑名单: {res['ban']}")
+        try:
+            await matcher.send(f"白名单: {key_list}\n\n黑名单: {res['ban']}")
+        except KeyError:
+            await matcher.send(f"白名单: {key_list}\n\n黑名单为空")
 
     @staticmethod
     async def set_proxy(proxy) -> str:

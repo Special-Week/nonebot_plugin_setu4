@@ -29,6 +29,7 @@ class Config(BaseSettings):
     setu_sfw_path: Union[bool, str] = False
     scientific_agency: Union[None, str] = None  # 科学上网代理地址
     setu_quality: List[int] = [5, 75]
+    sfw_withdraw: bool = True
 
     class Config:
         extra = "ignore"
