@@ -1,7 +1,6 @@
 """下载图片"""
 import asyncio
 import json
-import os
 import random
 import sqlite3
 from pathlib import Path
@@ -16,14 +15,23 @@ class DownloadImg:
         初始化数据库连接, 创建img文件夹, 初始化数据
         """
 
-        self.cur = sqlite3.connect("setu_data.db").cursor()
+        conn = sqlite3.connect("lolicon.db")
+        cur = conn.cursor()
         logger.info("数据库连接成功")
-        Path("img/nsfw").mkdir(exist_ok=True, parents=True)
-        Path("img/sfw").mkdir(exist_ok=True)
-        self.data: list = self.cur.execute(
+        self.data = cur.execute(
             "SELECT urls,r18 from main where status!='unavailable'"
         ).fetchall()
         random.shuffle(self.data)
+        conn.close()
+
+        nsfw_path = Path("img/nsfw")
+        sfw_path = Path("img/sfw")
+        nsfw_path.mkdir(exist_ok=True, parents=True)
+        sfw_path.mkdir(exist_ok=True)
+        self.all_files = {i.name for i in nsfw_path.iterdir()} | {
+            i.name for i in sfw_path.iterdir()
+        }
+
         self.error_json = {}
 
     async def main(self) -> None:
@@ -37,9 +45,7 @@ class DownloadImg:
             url: str = item[0]
             file_name = url.split("/")[-1]
             r18: int = item[1]  # 0, 1
-            if (not os.path.exists(f"img/nsfw/{file_name}")) and (
-                not os.path.exists(f"img/sfw/{file_name}")
-            ):
+            if file_name not in self.all_files:
                 task_list.append(self.start_download(url, file_name, sem, r18))
         logger.info(f"读取到 {len(task_list)} 个图片未下载，准备下载")
         await asyncio.gather(*task_list)
