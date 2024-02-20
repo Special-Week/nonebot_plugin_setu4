@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 from loguru import logger
-from nonebot import get_driver
-from pydantic import BaseSettings
+from nonebot.plugin import get_plugin_config
+from pydantic import BaseModel
 
 DATA_PATH = Path("data/setu4")
 if not DATA_PATH.exists() or not DATA_PATH.is_dir():
@@ -11,7 +11,7 @@ if not DATA_PATH.exists() or not DATA_PATH.is_dir():
     DATA_PATH.mkdir(0o755, parents=True, exist_ok=True)
 
 
-class Config(BaseSettings):
+class Config(BaseModel):
     setu_disable_wlist: bool = False  # 是否禁用白名单检查
     setu_enable_private: bool = False  # 是否允许未在白名单的私聊会话使用
     setu_save: Union[
@@ -27,16 +27,12 @@ class Config(BaseSettings):
 
     setu_nsfw_path: Union[bool, str] = False
     setu_sfw_path: Union[bool, str] = False
-    scientific_agency: Union[None, str] = None  # 科学上网代理地址
+    scientific_agency: Optional[str] = None  # 科学上网代理地址
     setu_quality: List[int] = [5, 75]
     sfw_withdraw: bool = True
 
-    class Config:
-        extra = "ignore"
 
-
-# 实例化配置对象
-config = Config.parse_obj(get_driver().config)
+config = get_plugin_config(Config)
 
 
 # 规范取值范围
@@ -67,6 +63,3 @@ except Exception as e:
     config.setu_nsfw_path = False
     config.setu_sfw_path = False
     config.setu_save = False
-
-
-print(config)

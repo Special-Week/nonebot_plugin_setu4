@@ -2,18 +2,11 @@
 
 内置数据库的setu插件, 另外尝试降低因为风控发不出图的概率(图像左右镜像翻转, 随机修改左上角一颗像素点)
 
-不喜欢繁杂的权限控制这里推荐[青春版](https://github.com/Special-Week/youth-version-of-setu4), 简化了很多设置, 群聊私聊全开, 只有必要的权限控制, 相比完整版功能精简
 
 ### tips
 github仓库内顺便加了一次性下载数据库内所有图片的脚本, 文件夹download_image内
 请勿团体大规模爬取, 造成代理服务器不可用, 代理使用的是我自己提供的代理服务器setu.woshishaluan.top
 如果不可用请删除第42行代码使用数据库默认的i.pixiv.re或修改成其他
-download_image内还有二进制构建用来下载图, 可以直接拿去run. 通过命令行调用有两个参数可选:
-
-    -sem(下载的并发量) 
-    -proxy(代理反代服务器地址, 默认为setu.woshishaluan.top)
-如果我的服务器不可用了请自行更换(一个月6t流量)
-eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 
 另外：数据库的表结构性能极低，如果想拿来做api什么的建议把数据洗一下，比如分成多个表，tags单独分一个表，并且建立索引
@@ -26,7 +19,14 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
     
     nb plugin install nonebot-plugin-setu4
     
-    有能力尽量从本仓库clone, 因为pypi数据库不一定最新(可能会差个几千条)
+    有能力尽量从本仓库clone, 因为pypi数据库不一定最新(可能会差个几千条), 也可以试着手动下载数据库换上去, 数据库大概月更
+
+    从0.14.114514版本开始，本插件不再兼容2.2.0以下版本的nonebot2并且适配pydantic v2, 请确保你的nonebot2版本在2.2.0及以上
+
+    如需兼容2.2.0以下版本的nonebot2以及pydantic v1请使用0.13.114514版本
+
+    pip install nonebot_plugin_setu4==0.13.114514
+
 
 ## env 配置项
 
@@ -51,7 +51,7 @@ eg: downloadImg_win_x86_64.exe -sem 5 -proxy i.pixiv.re
 
 [^1]:"https://raw.githubusercontent.com/Special-Week/nonebot_plugin_setu4/main/nonebot_plugin_setu4/resource/lolicon.db"
 
-setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进行匹配, 不需要再下载, 需要先要自己创建好文件夹
+setu_save保存后下一次调用碰到这个setu会先从这个文件夹中进行匹配, 不需要再下载
 
 一般无需科学上网, 但希望你确认一下图片代理是否可用:   
 
