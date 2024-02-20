@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from loguru import logger
-from nonebot.plugin import get_plugin_config
-from pydantic import BaseModel
+from nonebot import get_driver
+from pydantic import BaseModel, parse_obj_as
 
 DATA_PATH = Path("data/setu4")
 if not DATA_PATH.exists() or not DATA_PATH.is_dir():
@@ -32,8 +32,7 @@ class Config(BaseModel):
     sfw_withdraw: bool = True
 
 
-config = get_plugin_config(Config)
-
+config = parse_obj_as(Config, get_driver().config.dict())
 
 # 规范取值范围
 config.setu_cd = max(0, config.setu_cd)  # setu_cd不能小于0
