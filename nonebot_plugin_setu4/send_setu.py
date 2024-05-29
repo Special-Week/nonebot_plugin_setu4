@@ -84,7 +84,7 @@ class SendSetu:
                 session_id, r18flag, num, user_type
             )
         except PermissionError as e:
-            await matcher.finish(str(e), at_sender=True)
+            await matcher.finish(repr(e))
         # 检查是否需要撤回, 如果withdraw_time为0 或者 用户在env设置了sfw_withdraw=False切图片非r18时, 那么就不撤回
         will_withdraw = bool(withdraw_time != 0 and (r18 or config.sfw_withdraw))
         # quality = 95是最佳质量(图片质量太高发起来太费时间了)
@@ -106,7 +106,7 @@ class SendSetu:
         try:
             data = await get_data.get_setu(key, num, r18, quality)
         except Exception as e:
-            await matcher.finish(repr(e), at_sender=True)
+            await matcher.finish(repr(e))
 
         # 发送的消息列表
         message_list = []
@@ -160,8 +160,7 @@ class SendSetu:
         except Exception as e:
             logger.warning(repr(e))
             await matcher.finish(
-                message=Message(f"消息可能被风控了，图发不出来，错误信息{repr(e)}"),
-                at_sender=True,
+                message=f"消息可能被风控了，图发不出来，错误信息{repr(e)}"
             )
 
         # 自动撤回涩图

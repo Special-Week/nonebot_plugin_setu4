@@ -155,7 +155,7 @@ class PermissionManager:
         # 优先采用黑名单检查
         if self.read_ban_list(session_id):
             logger.warning(f"涩图功能对 {session_id} 禁用！")
-            raise PermissionError(f"涩图功能对 {session_id} 禁用！")
+            raise PermissionError(f"该功能对 {session_id} 禁用！")
         # 采用白名单检查, 如果白名单被禁用则跳过
         if (
             not self.setu_disable_wlist
@@ -166,7 +166,7 @@ class PermissionManager:
             and session_id not in self.cfg.keys()
         ):
             logger.warning(f"涩图功能在 {session_id} 会话中未启用")
-            raise PermissionError("涩图功能在此会话中未启用！")
+            raise PermissionError("该功能在此会话中未启用！")
 
         # 查询冷却时间
         tile_left = (
