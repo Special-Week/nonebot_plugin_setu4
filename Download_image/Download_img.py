@@ -57,7 +57,7 @@ class DownloadImg:
         下载图片
         """
 
-        url = url.replace("i.pixiv.re", "setu.woshishaluan.top")  # 反代地址
+        url = url.replace("i.pixiv.re", "setu.tencent-sb.link")  # 反代地址
         save_path = f"img/nsfw/{file_name}" if r18 else f"img/sfw/{file_name}"
         async with sem:
             try:
