@@ -15,6 +15,6 @@ python Download_img.py
 - 注意依赖于sqlite3, httpx, loguru库
 - 需要更换代理请找到 
 ``` python
-url = url.replace('i.pixiv.re', 'setu.tencent-sb.link') 
+url = url.replace('i.pixiv.re', 'setu.51246352.xyz') 
 ```
-这行代码, 将setu.tencent-sb.link换成你想要的反代地址即可 (也可以直接删掉用i.pixiv.re)
+这行代码, 将setu.51246352.xyz换成你想要的反代地址即可 (也可以直接删掉用i.pixiv.re)
